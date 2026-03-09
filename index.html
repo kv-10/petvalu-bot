@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project: Herald — Install</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Figtree:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+  :root {
+    --bg: #060910; --s1: #0c1018; --s2: #131824;
+    --border: #1e2636; --border2: #28374f;
+    --accent: #00c896; --accent2: #00a67d;
+    --accentd: rgba(0,200,150,0.12);
+    --text: #e4ecf7; --text2: #8fa8c8; --muted: #3d5068;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    font-family: 'Figtree', sans-serif; -webkit-font-smoothing: antialiased;
+  }
+  body {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 48px 24px; gap: 0;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800;
+    letter-spacing: 4px; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 10px;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+    opacity: 0;
+  }
+  .title {
+    font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800;
+    color: var(--text); text-align: center; line-height: 1.1;
+    margin-bottom: 12px;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards 0.1s;
+    opacity: 0;
+  }
+  .subtitle {
+    font-size: 14px; color: var(--text2); text-align: center;
+    margin-bottom: 48px; line-height: 1.6;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards 0.18s;
+    opacity: 0;
+  }
+
+  .card {
+    width: 100%; max-width: 380px;
+    background: var(--s1); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px 24px;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards 0.26s;
+    opacity: 0;
+  }
+  .card-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--muted); margin-bottom: 16px;
+  }
+
+  .step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .step:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accentd); border: 1px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: var(--accent);
+    margin-top: 1px;
+  }
+  .step-text { font-size: 13px; color: var(--text2); line-height: 1.5; padding-top: 2px; }
+  .step-text strong { color: var(--text); font-weight: 700; }
+
+  .install-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; max-width: 380px;
+    padding: 17px; margin-top: 16px;
+    background: var(--accent); color: #000;
+    border: none; border-radius: 14px;
+    font-family: 'Figtree', sans-serif; font-size: 16px; font-weight: 800;
+    cursor: pointer; text-decoration: none;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards 0.34s;
+    opacity: 0; transition: background 0.15s;
+  }
+  .install-btn:hover { background: var(--accent2); }
+  .install-btn:active { opacity: 0.88; }
+
+  .version-note {
+    font-size: 11px; color: var(--muted); text-align: center;
+    margin-top: 12px;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards 0.4s;
+    opacity: 0;
+  }
+  .version-note span {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text2); font-size: 11px;
+  }
+
+  .warning {
+    width: 100%; max-width: 380px;
+    background: rgba(77,159,255,0.08); border: 1px solid rgba(77,159,255,0.3);
+    border-radius: 12px; padding: 12px 16px; margin-top: 20px;
+    font-size: 12px; color: var(--text2); line-height: 1.5;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards 0.46s;
+    opacity: 0;
+  }
+  .warning strong { color: #4d9fff; }
+
+  .footer {
+    margin-top: 40px; font-size: 11px; color: var(--muted); text-align: center;
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards 0.52s;
+    opacity: 0;
+  }
+  .footer span { color: var(--text2); font-weight: 600; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+  <div class="logo">Project: Herald</div>
+  <div class="title">Install the<br>Order Bot</div>
+  <div class="subtitle">Firefox extension for Pet Valu order automation.<br>Requires Firefox Developer Edition.</div>
+
+  <div class="card">
+    <div class="card-label">Installation Steps</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Click <strong>Install Extension</strong> below</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Firefox will ask for confirmation — click <strong>Add</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Open the sidebar from the <strong>toolbar icon</strong> or View → Sidebar</div>
+    </div>
+  </div>
+
+  <a class="install-btn" href="petvalu-bot.xpi">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    Install Extension
+  </a>
+
+  <div class="version-note">Current version: <span id="versionTag">v1.6.2</span></div>
+
+  <div class="warning">
+    <strong>First time?</strong> Make sure <code>xpinstall.signatures.required</code> is set to <strong>false</strong> in <code>about:config</code> before installing.
+  </div>
+
+  <div class="footer">made by <span>Ketan Vashisht</span> · Pet Valu franchise tool · not publicly distributed</div>
+
+</body>
+</html>
