@@ -151,7 +151,16 @@
     Install Extension
   </a>
 
-  <div class="version-note">Current version: <span id="versionTag">v1.6.2</span></div>
+  <div class="version-note">Current version: <span id="versionTag">loading...</span></div>
+  <script>
+    fetch('update.xml?t=' + Date.now(), { cache: 'no-store' })
+      .then(r => r.text())
+      .then(xml => {
+        const match = xml.match(/<version>([^<]+)<\/version>/);
+        if (match) document.getElementById('versionTag').textContent = 'v' + match[1];
+      })
+      .catch(() => { document.getElementById('versionTag').textContent = 'latest'; });
+  </script>
 
   <div class="warning">
     <strong>First time?</strong> Make sure <code>xpinstall.signatures.required</code> is set to <strong>false</strong> in <code>about:config</code> before installing.
