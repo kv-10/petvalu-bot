@@ -2,7 +2,7 @@
 <updates>
   <update>
     <app id="petvalu-bot@family">
-      <version>1.9.0</version>
+      <version>1.9.1</version>
       <update_link>https://project-herald.netlify.app/petvalu-bot.xpi</update_link>
     </app>
   </update>
