@@ -1,19 +1,4 @@
 
-// Dynamically size the order list to fill available space
-function sizeOrderList() {
-  const list    = document.getElementById('driveOrderList');
-  const bottom  = document.querySelector('.drive-bottom');
-  const top     = document.querySelector('.drive-top');
-  const header  = document.querySelector('.header');
-  if (!list || !bottom || !top || !header) return;
-  const bodyH   = 600;
-  const headerH = header.offsetHeight;
-  const topH    = top.offsetHeight;
-  const bottomH = bottom.offsetHeight;
-  const avail   = bodyH - headerH - topH - bottomH - 8; // 8px buffer
-  list.style.maxHeight = Math.max(80, avail) + 'px';
-}
-
 // ── TIMINGS (ms) ──
 const SPEED_PRESETS = {
   normal: { afterFilter: 2500, afterClear: 800,  afterQty: 600,  betweenItems: 400 },
@@ -166,7 +151,6 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  sizeOrderList();
   document.getElementById('pasteArea').addEventListener('input', onPasteAreaInput);
   document.getElementById('btnLoad').addEventListener('click', loadFromPasteArea);
   document.getElementById('btnRefresh').addEventListener('click', loadDriveOrders);
@@ -438,7 +422,7 @@ function setSpeed(speed) {
 
   // Show/hide custom inputs
   const customPanel = document.getElementById('customInputs');
-  if (customPanel) { customPanel.classList.toggle('show', speed === 'custom'); sizeOrderList(); }
+  if (customPanel) { customPanel.classList.toggle('show', speed === 'custom'); }
 
   // Speed note
   const notes = {
@@ -456,7 +440,6 @@ function togglePaste() {
   const toggle = document.getElementById('pasteToggle');
   const open   = body.classList.toggle('open');
   toggle.textContent = open ? '▴ Hide manual entry' : '▾ Enter order manually';
-  sizeOrderList();
 }
 
 // ── GMAIL TAB DETECTION ──
@@ -545,7 +528,13 @@ function releaseWakeLock() {
 // ── RENDER ──
 function renderState() {
   const phase = localState?.phase || 'idle';
-  document.getElementById('secDrive').style.display    = phase === 'idle'     ? 'block' : 'none';
+  // Drive label bar + order list: only visible on idle
+  const isIdle = phase === 'idle';
+  document.getElementById('driveLabelBar').style.display = isIdle ? '' : 'none';
+  document.getElementById('driveOrderList').style.display = isIdle ? '' : 'none';
+  // Section scroll: visible when not idle
+  const ss = document.getElementById('sectionScroll');
+  ss.style.display = isIdle ? 'none' : 'block';
   document.getElementById('secPreview').style.display  = phase === 'loaded'   ? 'block' : 'none';
   document.getElementById('secProgress').style.display = phase === 'running'  ? 'block' : 'none';
   document.getElementById('secComplete').style.display = phase === 'complete' ? 'block' : 'none';
