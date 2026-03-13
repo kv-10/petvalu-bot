@@ -570,12 +570,12 @@ function renderState() {
   const isIdle = phase === 'idle';
   document.getElementById('driveLabelBar').style.display = isIdle ? '' : 'none';
   document.getElementById('driveOrderList').style.display = isIdle ? '' : 'none';
-  // Section scroll: visible when not idle
+  // Section scroll: flex when not idle
   const ss = document.getElementById('sectionScroll');
-  ss.style.display = isIdle ? 'none' : 'block';
-  document.getElementById('secPreview').style.display  = phase === 'loaded'   ? 'block' : 'none';
-  document.getElementById('secProgress').style.display = phase === 'running'  ? 'block' : 'none';
-  document.getElementById('secComplete').style.display = phase === 'complete' ? 'block' : 'none';
+  ss.style.display = isIdle ? 'none' : 'flex';
+  document.getElementById('secPreview').style.display  = phase === 'loaded'   ? 'flex' : 'none';
+  document.getElementById('secProgress').style.display = phase === 'running'  ? 'flex' : 'none';
+  document.getElementById('secComplete').style.display = phase === 'complete' ? 'flex' : 'none';
 
   const store = document.getElementById('headerStore');
   if (localState?.orderData?.store) {
