@@ -264,23 +264,27 @@ async function loadDriveOrders() {
       const dateLabel = g.orders.length === 2 && g.orders[0].dateStr !== g.orders[1].dateStr
         ? `${formatDate(g.orders[0].dateStr)} – ${formatDate(g.orders[1].dateStr)}`
         : formatDate(g.orders[g.orders.length - 1].dateStr);
+      // Fetch item counts from cached file metadata if available (fallback: unknown)
       const orderRows = g.orders.map((o, oi) =>
         `<div class="sg-order" data-gi="${gi}" data-oi="${oi}">
           <div>
             <div class="sg-op">${o.operator}</div>
-            <div class="sg-items">${formatDate(o.dateStr)}</div>
+            <div class="sg-items">${formatDate(o.dateStr)}${o.itemCount != null ? ` &nbsp;·&nbsp; <span style="color:var(--accent);font-weight:700">${o.itemCount} items</span>` : ''}</div>
           </div>
           <div class="sg-arr">›</div>
         </div>`
       ).join('');
+      const totalItems = g.orders.reduce((s, o) => s + (o.itemCount ?? 0), 0);
+      const totalStr = g.orders.some(o => o.itemCount != null)
+        ? ` &nbsp;·&nbsp; ${totalItems} items total` : '';
+      const storeNum = storeLabel(g.store).match(/#\d+/)?.[0] || '';
       const bothBtn = g.orders.length >= 2
         ? `<div class="sg-both" data-gi="${gi}" data-both="1">Load Both Together</div>`
         : '';
-      const storeNum = storeLabel(g.store).match(/#\d+/)?.[0] || '';
       return `<div class="store-group">
         <div class="sg-header">
           <div class="sg-store-name">${storeLabelPlain(g.store)}</div>
-          <div class="sg-store-sub">${storeNum} &nbsp;·&nbsp; ${dateLabel}</div>
+          <div class="sg-store-sub">${storeNum} &nbsp;·&nbsp; ${dateLabel}${totalStr}</div>
         </div>
         ${orderRows}
         ${bothBtn}
@@ -653,6 +657,9 @@ async function sendCompletionEmail() {
   const operator = od.operator || 'Unknown';
   const date     = new Date().toLocaleDateString('en-CA');
 
+  // Show sending state
+  setEmailStatus('sending');
+
   // Compute runtime from timerStart
   const timerStart = localState?.timerStart;
   let runtimeStr = 'N/A';
@@ -691,8 +698,30 @@ async function sendCompletionEmail() {
 
   try {
     await chrome.runtime.sendMessage({ type: 'APPS_POST', payload });
+    setEmailStatus('sent');
   } catch(e) {
     console.warn('[PV] Email send failed:', e.message);
+    setEmailStatus('failed');
+  }
+}
+
+function setEmailStatus(state) {
+  const el = document.getElementById('emailStatusBadge');
+  if (!el) return;
+  el.style.display = 'flex';
+  el.style.animation = 'none';
+  void el.offsetWidth; // reflow to restart animation
+  if (state === 'sending') {
+    el.className = 'email-badge email-sending';
+    el.innerHTML = '<span class="email-dot-spin"></span> Sending receipt...';
+  } else if (state === 'sent') {
+    el.className = 'email-badge email-sent';
+    el.innerHTML = '✓ Receipt sent to sarniapetvalu@gmail.com';
+    el.style.animation = 'badgePop 0.4s cubic-bezier(0.22,1,0.36,1) forwards';
+  } else if (state === 'failed') {
+    el.className = 'email-badge email-failed';
+    el.innerHTML = '✗ Receipt failed to send';
+    el.style.animation = 'badgePop 0.4s cubic-bezier(0.22,1,0.36,1) forwards';
   }
 }
 

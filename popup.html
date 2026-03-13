@@ -29,193 +29,169 @@
   --muted:  #6e9e7e;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
   width: 380px;
-  background: var(--bg); color: var(--text);
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-size: 13px; -webkit-font-smoothing: antialiased;
-  animation: bodyFade 0.35s ease forwards;
-}
-@keyframes bodyFade { from { opacity: 0; } to { opacity: 1; } }
-
-/* ── HEADER ── */
-.header {
-  padding: 12px 16px 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 10px;
-  background: var(--s1);
-}
-.header-logo {
-  width: 26px; height: 26px; flex-shrink: 0;
-  background: var(--accent); border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 1px 4px rgba(20,83,45,0.2);
-}
-.header-title {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 14px; font-weight: 800; color: var(--text); flex: 1;
-  letter-spacing: -0.3px;
-}
-.header-store {
-  font-size: 11px; font-weight: 700; color: var(--accent);
-  background: var(--accentd); border: 1px solid rgba(20,83,45,0.3);
-  border-radius: 20px; padding: 2px 10px;
-  font-family: 'IBM Plex Mono', monospace;
-}
-
-/* ── SECTIONS ── */
-.section { padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--bg); }
-.section-label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.5px; color: var(--muted); margin-bottom: 10px;
-}
-.btn { width: 100%; padding: 11px; border-radius: 10px; border: none; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.12s, transform 0.1s; }
-.btn:active { opacity: 0.85; transform: scale(0.98); }
-.btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.btn-accent  { background: var(--accent); color: #fff; }
-.btn-outline { background: var(--s1); border: 1px solid var(--border); color: var(--text2); margin-top: 8px; }
-.btn-red     { background: var(--redd); border: 1px solid var(--red); color: var(--red); margin-top: 8px; }
-
-/* ── STORE GROUPS ── */
-.store-group {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  margin-bottom: 10px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  animation: cardSlideIn 0.3s cubic-bezier(0.22,1,0.36,1) both;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  animation: bodyFade 0.3s ease forwards;
 }
-.store-group:last-child { margin-bottom: 0; }
+@keyframes bodyFade { from{opacity:0} to{opacity:1} }
 
-@keyframes cardSlideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-/* Stagger each card */
-.store-group:nth-child(1) { animation-delay: 0ms; }
-.store-group:nth-child(2) { animation-delay: 60ms; }
-.store-group:nth-child(3) { animation-delay: 120ms; }
-.store-group:nth-child(4) { animation-delay: 180ms; }
-
-/* Green block header — matches the PWA catalog bottom sheet */
-.sg-header {
-  padding: 11px 14px 10px;
-  background: var(--accent);
-  border-bottom: 1px solid rgba(20,83,45,0.2);
-}
-.sg-store-name {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 16px; font-weight: 800; color: #fff;
-  letter-spacing: -0.2px;
-}
-.sg-store-sub {
-  font-size: 11px; color: rgba(255,255,255,0.65);
-  margin-top: 2px; font-family: 'IBM Plex Mono', monospace;
-}
-
-.sg-order {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 14px; cursor: pointer;
-  transition: background 0.12s;
-  border-bottom: 1px solid var(--border);
-}
-.sg-order:last-of-type { border-bottom: none; }
-.sg-order:hover  { background: var(--s2); }
-.sg-order:active { background: var(--s3); }
-.sg-op    { font-size: 13px; font-weight: 700; color: var(--text); }
-.sg-items { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.sg-arr   { color: var(--accent); font-size: 18px; font-weight: 700; transition: transform 0.15s; }
-.sg-order:hover .sg-arr { transform: translateX(2px); }
-
-.sg-both {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 11px 14px; cursor: pointer;
-  background: var(--accentd); border-top: 1px solid rgba(20,83,45,0.15);
-  color: var(--accent); font-size: 13px; font-weight: 700;
-  transition: background 0.12s, transform 0.1s;
-  font-family: 'Outfit', sans-serif;
-}
-.sg-both:hover  { background: rgba(20,83,45,0.16); }
-.sg-both:active { transform: scale(0.98); opacity: 0.85; }
-
-/* ── PASTE ── */
-.paste-toggle {
-  text-align: center; padding: 10px 0 2px;
-  font-size: 12px; color: var(--muted); cursor: pointer;
-  border-top: 1px solid var(--border); margin-top: 10px;
-  user-select: none; transition: color 0.15s;
-}
-.paste-toggle:hover { color: var(--accent); }
-.paste-body { display: none; margin-top: 10px; }
-.paste-body.open { display: block; animation: fadeDown 0.2s ease; }
-@keyframes fadeDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ── PREVIEW TABLE ── */
-.preview-wrap { max-height: 160px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; }
-.preview-head, .preview-row { display: grid; grid-template-columns: 1fr 52px 52px; padding: 7px 10px; gap: 6px; align-items: center; }
-.preview-head { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--s2); }
-.preview-row  { border-bottom: 1px solid var(--border); background: var(--s1); transition: background 0.1s; }
-.preview-row:last-child { border-bottom: none; }
-.preview-row:nth-child(even) { background: var(--s2); }
-.pr-item  { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text); }
-.pr-order { text-align: center; font-weight: 700; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
-.pr-qoh   { text-align: center; font-weight: 700; color: var(--blue);   font-family: 'IBM Plex Mono', monospace; }
-.preview-head div:nth-child(2), .preview-head div:nth-child(3) { text-align: center; }
-
-/* ── PROGRESS ── */
-.prog-bar-wrap { height: 5px; background: var(--s3); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
-.prog-bar { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); width: 0%; }
-.prog-stats { display: flex; gap: 6px; margin-bottom: 10px; }
-.stat-pill { flex: 1; padding: 7px 6px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: 700; border: 1px solid; transition: transform 0.15s; }
-.stat-pill:hover { transform: translateY(-1px); }
-.stat-entered  { background: var(--accentd); border-color: rgba(20,83,45,0.3);  color: var(--accent); }
-.stat-skipped  { background: var(--yd);      border-color: rgba(146,64,14,0.3); color: var(--yellow); }
-.stat-notfound { background: var(--redd);    border-color: rgba(197,48,48,0.3); color: var(--red); }
-.stat-flagged  { background: var(--blued);   border-color: rgba(0,95,138,0.3);  color: var(--blue); }
-.stat-num { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800; display: block; line-height: 1.2; }
-.stat-sub { font-size: 9px; font-weight: 600; opacity: 0.8; display: block; margin-top: 1px; letter-spacing: 0.3px; }
-
-/* ── LOG ── */
-.log-wrap { height: 130px; overflow-y: auto; background: var(--s1); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
-.log-line { font-size: 11px; font-family: 'IBM Plex Mono', monospace; padding: 2px 0; border-bottom: 1px solid var(--border); color: var(--muted); }
-.log-line:last-child { border-bottom: none; }
-.log-line.ok       { color: var(--accent); }
-.log-line.skip     { color: var(--yellow); }
-.log-line.notfound { color: var(--red); }
-.log-line.flag     { color: var(--blue); }
-
-/* ── STATUS BAR ── */
-.status-bar {
-  padding: 8px 16px 6px; background: var(--s1);
-  border-top: 1px solid var(--border);
-  font-size: 11px; color: var(--muted);
-  display: flex; align-items: center; gap: 6px;
-}
-.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
-.status-dot.green  { background: var(--accent); }
-.status-dot.red    { background: var(--red); }
-.status-dot.yellow { background: var(--amber); animation: pulse 1s infinite; }
-
-/* ── FOOTER ── */
-.footer {
-  padding: 8px 16px 10px; background: var(--s1);
-  text-align: center; font-size: 10px; color: var(--muted);
-  border-top: 1px solid var(--border);
-  font-family: 'Outfit', sans-serif;
-}
-.footer span { color: var(--text2); font-weight: 600; }
-
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
-@keyframes spin   { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.spinning { animation: spin 0.7s linear infinite; display: inline-block; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
-/* ── SPEED CONTROL ── */
-.speed-wrap { display: flex; gap: 6px; }
+/* ─── HEADER ─── */
+.header {
+  flex-shrink: 0;
+  padding: 9px 13px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 9px;
+  background: var(--s1);
+}
+.header-logo {
+  width: 24px; height: 24px; flex-shrink: 0;
+  border-radius: 6px; overflow: hidden;
+}
+.header-logo img { width: 100%; height: 100%; display: block; }
+.header-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 13px; font-weight: 800; color: var(--text); flex: 1;
+  letter-spacing: -0.2px;
+}
+.header-title .ver {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500; color: var(--muted); margin-left: 5px;
+}
+.header-store {
+  font-size: 10px; font-weight: 700; color: var(--accent);
+  background: var(--accentd); border: 1px solid rgba(20,83,45,0.3);
+  border-radius: 20px; padding: 2px 9px;
+  font-family: 'IBM Plex Mono', monospace;
+  max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dev-btn {
+  padding: 3px 7px; background: var(--s2); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--muted); font-size: 10px; font-weight: 700;
+  cursor: pointer; flex-shrink: 0; font-family: 'Outfit', sans-serif;
+  transition: background 0.12s;
+}
+.dev-btn:hover { background: var(--s3); }
+
+/* ─── MAIN SCROLL (fills remaining height) ─── */
+.main-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ─── SECTION ─── */
+.section {
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--border);
+}
+.section-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted); margin-bottom: 9px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ─── DRIVE SECTION ─── */
+#secDrive {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.drive-top {
+  flex-shrink: 0;
+  padding: 10px 13px 4px;
+}
+#driveOrderList {
+  overflow-y: auto;
+  padding: 0 13px 6px;
+  min-height: 60px;
+  max-height: 240px;
+}
+.drive-bottom {
+  flex-shrink: 0;
+  padding: 8px 13px 10px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+/* ─── STORE GROUPS ─── */
+.store-group {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  margin-bottom: 7px;
+  overflow: hidden;
+  animation: cardIn 0.3s cubic-bezier(0.22,1,0.36,1) both;
+}
+.store-group:last-child { margin-bottom: 0; }
+.store-group:nth-child(1){animation-delay:0ms}
+.store-group:nth-child(2){animation-delay:55ms}
+.store-group:nth-child(3){animation-delay:110ms}
+.store-group:nth-child(4){animation-delay:165ms}
+@keyframes cardIn {
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Green header — no store# repeated, only in muted sub */
+.sg-header {
+  padding: 8px 11px 7px;
+  background: var(--accent);
+}
+.sg-store-name {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px; font-weight: 800; color: #fff;
+  letter-spacing: -0.2px; line-height: 1.2;
+}
+.sg-store-sub {
+  font-size: 10px; color: rgba(255,255,255,0.55);
+  margin-top: 1px; font-family: 'IBM Plex Mono', monospace;
+}
+.sg-total { color: rgba(255,255,255,0.85); font-weight: 700; }
+
+/* Compact order rows */
+.sg-order {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 11px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+.sg-order:last-of-type { border-bottom: none; }
+.sg-order:hover  { background: var(--s2); }
+.sg-order:active { background: var(--s3); }
+.sg-op   { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.sg-meta { font-size: 10px; color: var(--muted); margin-top: 1px; font-family: 'IBM Plex Mono', monospace; }
+.sg-meta .sg-cnt { color: var(--accent); font-weight: 700; }
+.sg-arr  { color: var(--accent); font-size: 15px; font-weight: 700; transition: transform 0.15s; flex-shrink: 0; }
+.sg-order:hover .sg-arr { transform: translateX(3px); }
+
+.sg-both {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 11px; cursor: pointer;
+  background: var(--accentd); border-top: 1px solid rgba(20,83,45,0.15);
+  color: var(--accent); font-size: 12px; font-weight: 700;
+  transition: background 0.12s, transform 0.1s;
+}
+.sg-both:hover  { background: rgba(20,83,45,0.16); }
+.sg-both:active { transform: scale(0.98); }
+
+/* ─── SPEED ─── */
+.speed-wrap { display: flex; gap: 5px; }
 .speed-btn {
-  flex: 1; padding: 8px 4px; border-radius: 8px; border: 1px solid var(--border);
+  flex: 1; padding: 6px 0; border-radius: 7px; border: 1px solid var(--border);
   background: var(--s1); color: var(--muted); font-family: 'Outfit', sans-serif;
   font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
   transition: all 0.15s; position: relative; overflow: hidden;
@@ -225,110 +201,212 @@ body {
 .speed-btn.active-fast   { background: var(--redd);    border-color: rgba(197,48,48,0.4); color: var(--red); }
 .speed-btn.active-custom { background: var(--amberd);  border-color: rgba(180,83,9,0.4);  color: var(--amber); }
 .speed-btn.active-warp   { background: var(--purpled); border-color: rgba(124,58,237,0.4);color: var(--purple); }
-
 @keyframes flameSweep {
-  0%   { transform: translateX(-100%) skewX(-12deg); opacity: 0.9; }
-  100% { transform: translateX(220%)  skewX(-12deg); opacity: 0; }
+  0%   {transform:translateX(-100%) skewX(-12deg);opacity:0.9}
+  100% {transform:translateX(220%)  skewX(-12deg);opacity:0}
 }
 .flame-sweep::after {
-  content: ''; position: absolute; top: 0; left: 0; width: 60%; height: 100%;
+  content:''; position:absolute; top:0; left:0; width:60%; height:100%;
   background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(167,139,250,0.5), transparent);
   animation: flameSweep 0.55s cubic-bezier(0.4,0,0.2,1) forwards;
   pointer-events: none;
 }
+.custom-inputs {
+  display:none; margin-top:7px; background:var(--s1); border:1px solid var(--border);
+  border-radius:9px; padding:8px 10px; flex-direction:column; gap:6px;
+}
+.custom-inputs.show { display:flex; animation:fadeDown 0.2s ease; }
+.ci-row { display:grid; grid-template-columns:1fr 68px; align-items:center; gap:8px; }
+.ci-label { font-size:11px; font-weight:600; color:var(--text2); }
+.ci-unit  { font-size:10px; color:var(--muted); margin-top:1px; }
+.ci-input { width:100%; padding:4px 7px; border-radius:6px; border:1px solid var(--border); background:var(--s2); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; text-align:right; outline:none; transition:border-color 0.15s; }
+.ci-input:focus { border-color:var(--amber); }
+#speedNote { font-size:10px; color:var(--muted); margin-top:4px; text-align:center; }
 
-.custom-inputs { display: none; margin-top: 10px; background: var(--s1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; flex-direction: column; gap: 8px; }
-.custom-inputs.show { display: flex; animation: fadeDown 0.2s ease; }
-.ci-row { display: grid; grid-template-columns: 1fr 80px; align-items: center; gap: 8px; }
-.ci-label { font-size: 11px; font-weight: 600; color: var(--text2); }
-.ci-unit  { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.ci-input { width: 100%; padding: 5px 8px; border-radius: 7px; border: 1px solid var(--border); background: var(--s2); color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; text-align: right; outline: none; transition: border-color 0.15s; }
-.ci-input:focus { border-color: var(--amber); }
+/* ─── PASTE ─── */
+.paste-toggle { text-align:center; padding:7px 0 0; font-size:11px; color:var(--muted); cursor:pointer; border-top:1px solid var(--border); margin-top:8px; user-select:none; transition:color 0.15s; }
+.paste-toggle:hover { color:var(--accent); }
+.paste-body { display:none; margin-top:7px; }
+.paste-body.open { display:block; animation:fadeDown 0.2s ease; }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
 
-/* ── STARTUP ── */
+/* ─── BUTTONS ─── */
+.btn { width:100%; padding:9px; border-radius:9px; border:none; font-family:'Outfit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; transition:opacity 0.12s,transform 0.1s; }
+.btn:active { opacity:0.85; transform:scale(0.98); }
+.btn:disabled { opacity:0.35; cursor:not-allowed; }
+.btn-accent  { background:var(--accent); color:#fff; }
+.btn-outline { background:var(--s1); border:1px solid var(--border); color:var(--text2); margin-top:6px; }
+.btn-red     { background:var(--redd); border:1px solid var(--red); color:var(--red); margin-top:6px; }
+
+/* ─── PREVIEW TABLE ─── */
+.preview-wrap { max-height:130px; overflow-y:auto; border:1px solid var(--border); border-radius:9px; }
+.preview-head,.preview-row { display:grid; grid-template-columns:1fr 46px 46px; padding:5px 8px; gap:5px; align-items:center; }
+.preview-head { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); border-bottom:1px solid var(--border); background:var(--s2); }
+.preview-row  { border-bottom:1px solid var(--border); background:var(--s1); }
+.preview-row:last-child { border-bottom:none; }
+.preview-row:nth-child(even) { background:var(--s2); }
+.pr-item  { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text); }
+.pr-order { text-align:center; font-weight:700; color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.pr-qoh   { text-align:center; font-weight:700; color:var(--blue);   font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.preview-head div:nth-child(2),.preview-head div:nth-child(3){text-align:center;}
+
+/* ─── PROGRESS ─── */
+.prog-bar-wrap { height:4px; background:var(--s3); border-radius:99px; overflow:hidden; margin-bottom:8px; }
+.prog-bar { height:100%; background:var(--accent); border-radius:99px; transition:width 0.4s cubic-bezier(0.4,0,0.2,1); width:0%; }
+.prog-stats { display:flex; gap:5px; margin-bottom:8px; }
+.stat-pill {
+  flex:1; padding:6px 3px; border-radius:7px; text-align:center;
+  font-size:10px; font-weight:700; border:1px solid;
+  animation: statPop 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+.stat-pill:nth-child(1){animation-delay:0ms}
+.stat-pill:nth-child(2){animation-delay:40ms}
+.stat-pill:nth-child(3){animation-delay:80ms}
+.stat-pill:nth-child(4){animation-delay:120ms}
+@keyframes statPop { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+.stat-entered  { background:var(--accentd); border-color:rgba(20,83,45,0.3);  color:var(--accent); }
+.stat-skipped  { background:var(--yd);      border-color:rgba(146,64,14,0.3); color:var(--yellow); }
+.stat-notfound { background:var(--redd);    border-color:rgba(197,48,48,0.3); color:var(--red); }
+.stat-flagged  { background:var(--blued);   border-color:rgba(0,95,138,0.3);  color:var(--blue); }
+.stat-num { font-family:'Bricolage Grotesque',sans-serif; font-size:19px; font-weight:800; display:block; line-height:1.2; }
+.stat-sub { font-size:9px; font-weight:600; opacity:0.75; display:block; margin-top:1px; }
+
+/* ─── LOG ─── */
+.log-wrap { height:110px; overflow-y:auto; background:var(--s1); border:1px solid var(--border); border-radius:9px; padding:6px 8px; }
+.log-line { font-size:10px; font-family:'IBM Plex Mono',monospace; padding:2px 0; border-bottom:1px solid var(--border); color:var(--muted); animation:logSlide 0.15s ease both; }
+.log-line:last-child { border-bottom:none; }
+@keyframes logSlide { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+.log-line.ok       { color:var(--accent); }
+.log-line.skip     { color:var(--yellow); }
+.log-line.notfound { color:var(--red); }
+.log-line.flag     { color:var(--blue); }
+
+/* ─── EMAIL BADGE ─── */
+.email-badge {
+  display:none; align-items:center; gap:6px;
+  margin-top:8px; padding:7px 10px; border-radius:8px;
+  font-size:11px; font-weight:700; border:1px solid;
+  font-family:'Outfit',sans-serif;
+}
+@keyframes badgePop {
+  from{opacity:0;transform:translateY(4px) scale(0.95)}
+  to  {opacity:1;transform:translateY(0)   scale(1)}
+}
+.email-sending { background:var(--yd);      border-color:rgba(146,64,14,0.3); color:var(--yellow); }
+.email-sent    { background:var(--accentd); border-color:rgba(20,83,45,0.3);  color:var(--accent); animation:badgePop 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+.email-failed  { background:var(--redd);    border-color:rgba(197,48,48,0.3); color:var(--red);    animation:badgePop 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+@keyframes dotPulse { 0%,100%{opacity:1}50%{opacity:0.25} }
+.email-dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; animation:dotPulse 0.9s infinite; flex-shrink:0; }
+
+/* ─── STATUS BAR ─── */
+.status-bar {
+  flex-shrink:0; padding:5px 13px; background:var(--s1); border-top:1px solid var(--border);
+  font-size:11px; color:var(--muted); display:flex; align-items:center; gap:6px;
+}
+.status-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); flex-shrink:0; transition:background 0.3s; }
+.status-dot.green  { background:var(--accent); }
+.status-dot.red    { background:var(--red); }
+.status-dot.yellow { background:var(--amber); animation:pulse 1s infinite; }
+
+/* ─── FOOTER ─── */
+.footer {
+  flex-shrink:0; padding:4px 13px 6px; background:var(--s1); border-top:1px solid var(--border);
+  text-align:center; font-size:10px; color:var(--muted);
+}
+.footer span { color:var(--text2); font-weight:600; }
+
+/* ─── STARTUP ─── */
 #secStartup {
-  position: fixed; inset: 0; z-index: 999;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 0; padding: 40px 32px;
+  position:fixed; inset:0; z-index:999; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:32px 26px;
 }
 .startup-logo {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 14px; font-weight: 800; letter-spacing: -0.3px;
-  color: var(--accent); margin-bottom: 40px;
-  opacity: 0; animation: fadeUp 0.5s ease forwards 0.1s;
+  font-family:'Bricolage Grotesque',sans-serif; font-size:13px; font-weight:800;
+  letter-spacing:-0.2px; color:var(--accent); margin-bottom:28px;
+  opacity:0; animation:fadeUp 0.5s ease forwards 0.1s;
 }
-.startup-steps { width: 100%; }
+.startup-steps { width:100%; }
 .startup-step {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 0; border-bottom: 1px solid var(--border);
-  opacity: 0; transform: translateY(6px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  display:flex; align-items:center; gap:10px; padding:9px 0;
+  border-bottom:1px solid var(--border);
+  opacity:0; transform:translateY(6px); transition:opacity 0.35s ease,transform 0.35s ease;
 }
-.startup-step:last-child { border-bottom: none; }
-.startup-step.visible { opacity: 1; transform: translateY(0); }
+.startup-step:last-child { border-bottom:none; }
+.startup-step.visible { opacity:1; transform:translateY(0); }
 .step-icon {
-  width: 28px; height: 28px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; font-size: 11px;
-  background: var(--s2); border: 1px solid var(--border);
-  transition: background 0.3s, border-color 0.3s;
-  font-family: 'IBM Plex Mono', monospace; color: var(--muted);
+  width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; font-size:10px; background:var(--s2); border:1px solid var(--border);
+  transition:background 0.3s,border-color 0.3s; font-family:'IBM Plex Mono',monospace; color:var(--muted);
 }
-.step-icon.spinning-ring { border-color: var(--accent); border-top-color: transparent; animation: spinRing 0.7s linear infinite; }
-.step-icon.done   { background: var(--accentd); border-color: rgba(20,83,45,0.4);  color: var(--accent); }
-.step-icon.error  { background: var(--redd);    border-color: rgba(197,48,48,0.4); color: var(--red); }
-.step-icon.update { background: var(--yd);      border-color: rgba(146,64,14,0.4); color: var(--yellow); }
-.step-label { font-size: 13px; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; }
-.step-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; min-height: 15px; font-family: 'Outfit', sans-serif; }
+.step-icon.spinning-ring { border-color:var(--accent); border-top-color:transparent; animation:spinRing 0.7s linear infinite; }
+.step-icon.done   { background:var(--accentd); border-color:rgba(20,83,45,0.4);  color:var(--accent); }
+.step-icon.error  { background:var(--redd);    border-color:rgba(197,48,48,0.4); color:var(--red); }
+.step-icon.update { background:var(--yd);      border-color:rgba(146,64,14,0.4); color:var(--yellow); }
+.step-label { font-size:12px; font-weight:700; color:var(--text); font-family:'Outfit',sans-serif; }
+.step-sub   { font-size:10px; color:var(--muted); margin-top:1px; min-height:13px; font-family:'Outfit',sans-serif; }
 
-/* ── UPDATE ── */
+/* ─── UPDATE ─── */
 #secUpdate {
-  position: fixed; inset: 0; z-index: 1000;
-  background: var(--bg);
-  display: none; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 40px 28px; gap: 0;
+  position:fixed; inset:0; z-index:1000; background:var(--bg);
+  display:none; flex-direction:column; align-items:center; justify-content:center; padding:32px 22px;
 }
-#secUpdate.show { display: flex; }
-.upd-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--yd); border: 1.5px solid rgba(146,64,14,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 20px; color: var(--yellow); font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; opacity: 0; animation: fadeUp 0.4s ease forwards 0.05s; }
-.upd-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; text-align: center; opacity: 0; animation: fadeUp 0.4s ease forwards 0.1s; }
-.upd-version { font-size: 12px; font-weight: 700; color: var(--yellow); background: var(--yd); border: 1px solid rgba(146,64,14,0.3); border-radius: 20px; padding: 3px 12px; margin-bottom: 28px; font-family: 'IBM Plex Mono', monospace; opacity: 0; animation: fadeUp 0.4s ease forwards 0.15s; }
-.upd-divider { width: 100%; height: 1px; background: var(--border); margin-bottom: 24px; opacity: 0; animation: fadeUp 0.4s ease forwards 0.2s; }
-.upd-instruction { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.6; margin-bottom: 20px; opacity: 0; animation: fadeUp 0.4s ease forwards 0.22s; }
-.upd-instruction strong { color: var(--text); font-weight: 700; }
-.upd-url-box { width: 100%; background: var(--s1); border: 1px solid rgba(20,83,45,0.4); border-radius: 10px; padding: 12px 14px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; color: var(--accent); text-align: center; margin-bottom: 10px; cursor: pointer; transition: background 0.15s; opacity: 0; animation: fadeUp 0.4s ease forwards 0.27s; word-break: break-all; text-decoration: none; display: block; }
-.upd-url-box:active { background: var(--s2); }
-.upd-copy-hint { font-size: 10px; color: var(--muted); text-align: center; opacity: 0; animation: fadeUp 0.4s ease forwards 0.32s; }
-.upd-copy-hint.copied { color: var(--accent); }
+#secUpdate.show { display:flex; }
+.upd-icon { width:44px; height:44px; border-radius:50%; background:var(--yd); border:1.5px solid rgba(146,64,14,0.4); display:flex; align-items:center; justify-content:center; font-size:16px; margin-bottom:14px; color:var(--yellow); font-family:'Bricolage Grotesque',sans-serif; font-weight:800; opacity:0; animation:fadeUp 0.4s ease forwards 0.05s; }
+.upd-title { font-family:'Bricolage Grotesque',sans-serif; font-size:16px; font-weight:800; color:var(--text); margin-bottom:4px; text-align:center; opacity:0; animation:fadeUp 0.4s ease forwards 0.1s; }
+.upd-version { font-size:11px; font-weight:700; color:var(--yellow); background:var(--yd); border:1px solid rgba(146,64,14,0.3); border-radius:20px; padding:2px 10px; margin-bottom:20px; font-family:'IBM Plex Mono',monospace; opacity:0; animation:fadeUp 0.4s ease forwards 0.15s; }
+.upd-divider { width:100%; height:1px; background:var(--border); margin-bottom:16px; opacity:0; animation:fadeUp 0.4s ease forwards 0.2s; }
+.upd-instruction { font-size:12px; color:var(--muted); text-align:center; line-height:1.65; margin-bottom:16px; opacity:0; animation:fadeUp 0.4s ease forwards 0.22s; }
+.upd-instruction strong { color:var(--text); font-weight:700; }
+.upd-url-box { width:100%; background:var(--s1); border:1px solid rgba(20,83,45,0.4); border-radius:9px; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:7px; cursor:pointer; transition:background 0.15s; opacity:0; animation:fadeUp 0.4s ease forwards 0.27s; word-break:break-all; text-decoration:none; display:block; }
+.upd-url-box:active { background:var(--s2); }
+.upd-copy-hint { font-size:10px; color:var(--muted); text-align:center; opacity:0; animation:fadeUp 0.4s ease forwards 0.32s; }
+.upd-copy-hint.copied { color:var(--accent); }
 
-@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes spinRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* ─── DEV OVERLAY ─── */
+#devOverlay {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(241,246,242,0.97); backdrop-filter:blur(6px);
+  flex-direction:column; padding:14px 13px; overflow-y:auto;
+}
+.dev-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.dev-tag { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--amber); }
+.dev-close { background:none; border:1px solid var(--border); border-radius:7px; padding:3px 10px; color:var(--text2); font-size:11px; font-weight:700; cursor:pointer; }
+.dev-card { background:var(--s1); border:1px solid var(--border); border-radius:10px; padding:11px; margin-bottom:8px; }
+.dev-card-title { font-family:'Bricolage Grotesque',sans-serif; font-size:12px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.dev-card-desc  { font-size:11px; color:var(--muted); margin-bottom:9px; line-height:1.5; }
+.dev-card-status { font-size:11px; color:var(--muted); margin-top:6px; min-height:14px; text-align:center; }
+
+/* ─── MISC ─── */
+@keyframes pulse    { 0%,100%{opacity:1}50%{opacity:0.4} }
+@keyframes spin     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes spinRing { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.spinning { animation:spin 0.7s linear infinite; display:inline-block; }
 </style>
 </head>
 <body>
 
-<!-- STARTUP -->
+<!-- ═══ STARTUP ═══ -->
 <div id="secStartup">
   <div class="startup-logo">Project: Herald</div>
   <div class="startup-steps">
     <div class="startup-step" id="stepInit">
       <div class="step-icon" id="stepInitIcon">···</div>
-      <div class="step-text"><div class="step-label">Initializing</div><div class="step-sub" id="stepInitSub">Starting up...</div></div>
+      <div><div class="step-label">Initializing</div><div class="step-sub" id="stepInitSub">Starting up...</div></div>
     </div>
     <div class="startup-step" id="stepUpdate">
       <div class="step-icon" id="stepUpdateIcon">···</div>
-      <div class="step-text"><div class="step-label">Update Check</div><div class="step-sub" id="stepUpdateSub">Waiting...</div></div>
+      <div><div class="step-label">Update Check</div><div class="step-sub" id="stepUpdateSub">Waiting...</div></div>
     </div>
     <div class="startup-step" id="stepReady">
       <div class="step-icon" id="stepReadyIcon">···</div>
-      <div class="step-text"><div class="step-label">Ready</div><div class="step-sub" id="stepReadySub">Preparing...</div></div>
+      <div><div class="step-label">Ready</div><div class="step-sub" id="stepReadySub">Preparing...</div></div>
     </div>
   </div>
 </div>
 
-<!-- UPDATE -->
+<!-- ═══ UPDATE ═══ -->
 <div id="secUpdate">
   <div class="upd-icon">↑</div>
   <div class="upd-title" id="updTitle">Update Available</div>
@@ -343,147 +421,156 @@ body {
   <div class="upd-copy-hint" id="updCopyHint">tap to open in new tab</div>
 </div>
 
-<!-- HEADER -->
+<!-- ═══ HEADER ═══ -->
 <div class="header">
   <div class="header-logo">
-    <!-- Herald horn — matches phone app icon -->
-    <svg viewBox="0 0 32 32" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-      <path d="M26 4L8 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4l18 8V4z" fill="white"/>
-      <rect x="7.5" y="12" width="1.5" height="8" rx="0.5" fill="rgba(20,83,45,0.4)"/>
-    </svg>
+    <img src="icon128.png" alt="">
   </div>
-  <div class="header-title">Project: Herald <span id="versionBadge" style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;color:var(--muted);margin-left:4px"></span></div>
+  <div class="header-title">
+    Project: Herald
+    <span class="ver" id="versionBadge"></span>
+  </div>
   <div class="header-store" id="headerStore" style="display:none"></div>
-  <button id="devTriggerBtn" style="padding:3px 8px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Outfit',sans-serif">DEV</button>
+  <button class="dev-btn" id="devTriggerBtn">DEV</button>
 </div>
 
-<!-- DEV MODE -->
-<div id="devOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(241,246,242,0.96);backdrop-filter:blur(6px);flex-direction:column;padding:20px 16px;overflow-y:auto">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--amber);font-family:'Outfit',sans-serif">Dev Mode</div>
-    <button id="devCloseBtn" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Close</button>
+<!-- ═══ DEV OVERLAY ═══ -->
+<div id="devOverlay">
+  <div class="dev-header">
+    <div class="dev-tag">Dev Mode</div>
+    <button class="dev-close" id="devCloseBtn">Close</button>
   </div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5;font-family:'Outfit',sans-serif">Tests run the real code with synthetic data — not mocks.</div>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px">
-      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Email Receipt</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;font-family:'Outfit',sans-serif">Injects a fake completed order, calls the real sendCompletionEmail(). Check sarniapetvalu@gmail.com.</div>
-      <button id="devEmailBtn" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Run Email Test</button>
-      <div id="devEmailStatus" style="font-size:11px;color:var(--muted);margin-top:8px;min-height:16px;text-align:center;font-family:'Outfit',sans-serif"></div>
-    </div>
-    <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px">
-      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Drive Upload</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;font-family:'Outfit',sans-serif">Uploads a test JSON + CSV to Google Drive using the real upload path.</div>
-      <button id="devDriveBtn" style="width:100%;padding:11px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Run Drive Test</button>
-      <div id="devDriveStatus" style="font-size:11px;color:var(--muted);margin-top:8px;min-height:16px;text-align:center;font-family:'Outfit',sans-serif"></div>
-    </div>
-    <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px">
-      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Update Check</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;font-family:'Outfit',sans-serif">Forces a fresh update check against Vercel, same as startup does.</div>
-      <button id="devUpdateBtn" style="width:100%;padding:11px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Run Update Check</button>
-      <div id="devUpdateStatus" style="font-size:11px;color:var(--muted);margin-top:8px;min-height:16px;text-align:center;font-family:'Outfit',sans-serif"></div>
-    </div>
+  <p style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5">Tests run real code with synthetic data — not mocks.</p>
+  <div class="dev-card">
+    <div class="dev-card-title">Email Receipt</div>
+    <div class="dev-card-desc">Injects a fake completed order and calls the real sendCompletionEmail(). Check sarniapetvalu@gmail.com.</div>
+    <button id="devEmailBtn" style="width:100%;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Run Email Test</button>
+    <div class="dev-card-status" id="devEmailStatus"></div>
+  </div>
+  <div class="dev-card">
+    <div class="dev-card-title">Drive Upload</div>
+    <div class="dev-card-desc">Uploads a test JSON + CSV to Google Drive using the real upload path.</div>
+    <button id="devDriveBtn" style="width:100%;padding:8px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Run Drive Test</button>
+    <div class="dev-card-status" id="devDriveStatus"></div>
+  </div>
+  <div class="dev-card">
+    <div class="dev-card-title">Update Check</div>
+    <div class="dev-card-desc">Forces a fresh update check against Vercel, same as startup does.</div>
+    <button id="devUpdateBtn" style="width:100%;padding:8px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Run Update Check</button>
+    <div class="dev-card-status" id="devUpdateStatus"></div>
   </div>
 </div>
 
-<!-- DRIVE PICKER -->
-<div class="section" id="secDrive">
-  <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-    <span>This Week's Orders</span>
-    <button id="btnRefresh" style="background:none;border:none;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;font-family:'Outfit',sans-serif">
-      <span id="refreshIcon" style="display:inline-block">↻</span> Refresh
-    </button>
-  </div>
-  <div id="driveOrderList" style="min-height:40px">
-    <div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">Loading from Drive...</div>
-  </div>
+<!-- ═══ MAIN SCROLL ═══ -->
+<div class="main-scroll">
 
-  <!-- Speed -->
-  <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
-    <div class="section-label" style="margin-bottom:8px">Input Speed</div>
-    <div class="speed-wrap">
-      <button class="speed-btn active-normal" id="speedNormal" data-speed="normal">Normal</button>
-      <button class="speed-btn"               id="speedFast"   data-speed="fast">Fast</button>
-      <button class="speed-btn"               id="speedCustom" data-speed="custom">Custom</button>
-      <button class="speed-btn"               id="speedWarp"   data-speed="warp">Warp <span style="font-size:9px;opacity:0.7">β</span></button>
-    </div>
-    <div class="custom-inputs" id="customInputs">
-      <div class="ci-row">
-        <div><div class="ci-label">Filter Wait</div><div class="ci-unit">ms — after search filter</div></div>
-        <input class="ci-input" id="ciFilter"  type="number" value="2500" min="500"  max="9999">
-      </div>
-      <div class="ci-row">
-        <div><div class="ci-label">After Clear</div><div class="ci-unit">ms — after field cleared</div></div>
-        <input class="ci-input" id="ciClear"   type="number" value="800"  min="0"    max="9999">
-      </div>
-      <div class="ci-row">
-        <div><div class="ci-label">After Qty</div><div class="ci-unit">ms — after qty entered</div></div>
-        <input class="ci-input" id="ciQty"     type="number" value="600"  min="100"  max="9999">
-      </div>
-      <div class="ci-row">
-        <div><div class="ci-label">Between Items</div><div class="ci-unit">ms — gap between rows</div></div>
-        <input class="ci-input" id="ciBetween" type="number" value="400"  min="50"   max="9999">
+  <!-- ── DRIVE PICKER ── -->
+  <div id="secDrive" style="display:flex;flex-direction:column;">
+    <div class="drive-top">
+      <div class="section-label">
+        <span>This Week's Orders</span>
+        <button id="btnRefresh" style="background:none;border:none;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;gap:3px;font-family:'Outfit',sans-serif">
+          <span id="refreshIcon" style="display:inline-block">↻</span>&nbsp;Refresh
+        </button>
       </div>
     </div>
-    <div id="speedNote" style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">Filter wait: 2500ms · Clear: 800ms · Qty: 600ms · Between: 400ms</div>
+
+    <!-- Independently scrollable order list -->
+    <div id="driveOrderList">
+      <div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">Loading from Drive...</div>
+    </div>
+
+    <!-- Always-visible bottom: speed + paste -->
+    <div class="drive-bottom">
+      <div class="section-label" style="margin-bottom:5px">Input Speed</div>
+      <div class="speed-wrap">
+        <button class="speed-btn active-normal" id="speedNormal" data-speed="normal">Normal</button>
+        <button class="speed-btn"               id="speedFast"   data-speed="fast">Fast</button>
+        <button class="speed-btn"               id="speedCustom" data-speed="custom">Custom</button>
+        <button class="speed-btn"               id="speedWarp"   data-speed="warp">Warp <span style="font-size:9px;opacity:0.6">β</span></button>
+      </div>
+      <div class="custom-inputs" id="customInputs">
+        <div class="ci-row">
+          <div><div class="ci-label">Filter Wait</div><div class="ci-unit">ms after search filter</div></div>
+          <input class="ci-input" id="ciFilter"  type="number" value="2500" min="500"  max="9999">
+        </div>
+        <div class="ci-row">
+          <div><div class="ci-label">After Clear</div><div class="ci-unit">ms after field cleared</div></div>
+          <input class="ci-input" id="ciClear"   type="number" value="800"  min="0"    max="9999">
+        </div>
+        <div class="ci-row">
+          <div><div class="ci-label">After Qty</div><div class="ci-unit">ms after qty entered</div></div>
+          <input class="ci-input" id="ciQty"     type="number" value="600"  min="100"  max="9999">
+        </div>
+        <div class="ci-row">
+          <div><div class="ci-label">Between Items</div><div class="ci-unit">ms gap between rows</div></div>
+          <input class="ci-input" id="ciBetween" type="number" value="400"  min="50"   max="9999">
+        </div>
+      </div>
+      <div id="speedNote" style="font-size:10px;color:var(--muted);margin-top:4px;text-align:center">Filter: 2500ms · Clear: 800ms · Qty: 600ms · Between: 400ms</div>
+
+      <div class="paste-toggle" id="pasteToggle">+ Enter order manually</div>
+      <div class="paste-body" id="pasteBody">
+        <textarea id="pasteArea" placeholder="Paste order JSON here..." style="width:100%;height:52px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px;resize:none;outline:none;margin-bottom:6px;margin-top:6px;"></textarea>
+        <button class="btn btn-outline" id="btnLoad" disabled style="margin-top:0">Load Pasted Order</button>
+      </div>
+    </div>
   </div>
 
-  <div class="paste-toggle" id="pasteToggle">+ Enter order manually</div>
-  <div class="paste-body" id="pasteBody">
-    <textarea id="pasteArea" placeholder="Paste order JSON here..." style="width:100%;height:60px;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px;resize:none;outline:none;margin-bottom:8px;"></textarea>
-    <button class="btn btn-outline" id="btnLoad" disabled style="margin-top:0">Load Pasted Order</button>
+  <!-- ── PREVIEW ── -->
+  <div class="section" id="secPreview" style="display:none;">
+    <div class="section-label">Order Preview — <span id="previewCount">0</span> items</div>
+    <div class="preview-wrap">
+      <div class="preview-head"><div>Item #</div><div>Order</div><div>On Hand</div></div>
+      <div id="previewList"></div>
+    </div>
+    <button class="btn btn-accent" id="btnRun" style="margin-top:8px">Run Order Bot</button>
+    <button class="btn btn-outline" id="btnClear">Clear</button>
   </div>
-</div>
 
-<!-- PREVIEW -->
-<div class="section" id="secPreview" style="display:none">
-  <div class="section-label">Order Preview — <span id="previewCount">0</span> items</div>
-  <div class="preview-wrap">
-    <div class="preview-head"><div>Item #</div><div>Order</div><div>On Hand</div></div>
-    <div id="previewList"></div>
+  <!-- ── PROGRESS ── -->
+  <div class="section" id="secProgress" style="display:none;">
+    <div class="section-label">
+      <span>Progress — <span id="progLabel">0 / 0</span></span>
+      <span id="timerDisplay" style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px">0:00</span>
+    </div>
+    <div class="prog-bar-wrap"><div class="prog-bar" id="progBar"></div></div>
+    <div class="prog-stats">
+      <div class="stat-pill stat-entered"><span class="stat-num" id="statEntered">0</span>Entered<span class="stat-sub">qty set</span></div>
+      <div class="stat-pill stat-skipped"><span class="stat-num" id="statSkipped">0</span>Skipped<span class="stat-sub">no order</span></div>
+      <div class="stat-pill stat-notfound"><span class="stat-num" id="statNotFound">0</span>Not Found<span class="stat-sub">manual</span></div>
+      <div class="stat-pill stat-flagged"><span class="stat-num" id="statFlagged">0</span>Flagged<span class="stat-sub">manual</span></div>
+    </div>
+    <div class="log-wrap" id="logWrap"></div>
+    <button class="btn btn-red" id="btnStop" style="margin-top:8px">Stop Bot</button>
   </div>
-  <button class="btn btn-accent" id="btnRun" style="margin-top:10px">Run Order Bot</button>
-  <button class="btn btn-outline" id="btnClear">Clear</button>
-</div>
 
-<!-- PROGRESS -->
-<div class="section" id="secProgress" style="display:none">
-  <div class="section-label" style="display:flex;align-items:center;justify-content:space-between">
-    <span>Progress — <span id="progLabel">0 / 0</span></span>
-    <span id="timerDisplay" style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:1px">0:00</span>
-  </div>
-  <div class="prog-bar-wrap"><div class="prog-bar" id="progBar"></div></div>
-  <div class="prog-stats">
-    <div class="stat-pill stat-entered"><span class="stat-num" id="statEntered">0</span>Entered<span class="stat-sub">qty set</span></div>
-    <div class="stat-pill stat-skipped"><span class="stat-num" id="statSkipped">0</span>Skipped<span class="stat-sub">not needed</span></div>
-    <div class="stat-pill stat-notfound"><span class="stat-num" id="statNotFound">0</span>Not Found<span class="stat-sub">check manually</span></div>
-    <div class="stat-pill stat-flagged"><span class="stat-num" id="statFlagged">0</span>Flagged<span class="stat-sub">enter manually</span></div>
-  </div>
-  <div class="log-wrap" id="logWrap"></div>
-  <button class="btn btn-red" id="btnStop" style="margin-top:10px">Stop Bot</button>
-</div>
+  <!-- ── COMPLETE ── -->
+  <div class="section" id="secComplete" style="display:none;">
+    <div class="section-label">
+      <span>Complete</span>
+      <span id="timerFinal" style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:var(--accentd);border:1px solid rgba(20,83,45,0.3);border-radius:20px;padding:2px 9px;letter-spacing:0.5px">0:00</span>
+    </div>
+    <div class="prog-stats">
+      <div class="stat-pill stat-entered"><span class="stat-num" id="doneEntered">0</span>Entered<span class="stat-sub">qty set</span></div>
+      <div class="stat-pill stat-skipped"><span class="stat-num" id="doneSkipped">0</span>Skipped<span class="stat-sub">no order</span></div>
+      <div class="stat-pill stat-notfound"><span class="stat-num" id="doneNotFound">0</span>Not Found<span class="stat-sub">manual</span></div>
+      <div class="stat-pill stat-flagged"><span class="stat-num" id="doneFlagged">0</span>Flagged<span class="stat-sub">manual</span></div>
+    </div>
 
-<!-- COMPLETE -->
-<div class="section" id="secComplete" style="display:none">
-  <div class="section-label" style="display:flex;align-items:center;justify-content:space-between">
-    <span>Complete</span>
-    <span id="timerFinal" style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);background:var(--accentd);border:1px solid rgba(20,83,45,0.3);border-radius:20px;padding:2px 10px;letter-spacing:0.5px">0:00</span>
+    <!-- Email receipt status — visible confirmation -->
+    <div id="emailStatusBadge" class="email-badge"></div>
+
+    <button class="btn btn-outline" id="btnDownloadNF" style="display:none">Download Issues CSV</button>
+    <button class="btn btn-accent" id="btnReset" style="margin-top:6px">Start New Order</button>
   </div>
-  <div class="prog-stats">
-    <div class="stat-pill stat-entered"><span class="stat-num" id="doneEntered">0</span>Entered<span class="stat-sub">qty set</span></div>
-    <div class="stat-pill stat-skipped"><span class="stat-num" id="doneSkipped">0</span>Skipped<span class="stat-sub">not needed</span></div>
-    <div class="stat-pill stat-notfound"><span class="stat-num" id="doneNotFound">0</span>Not Found<span class="stat-sub">check manually</span></div>
-    <div class="stat-pill stat-flagged"><span class="stat-num" id="doneFlagged">0</span>Flagged<span class="stat-sub">enter manually</span></div>
-  </div>
-  <button class="btn btn-outline" id="btnDownloadNF" style="display:none;margin-bottom:8px">Download Issues CSV</button>
-  <button class="btn btn-accent" id="btnReset">Start New Order</button>
-</div>
+
+</div><!-- /main-scroll -->
 
 <div class="status-bar">
   <div class="status-dot" id="statusDot"></div>
   <span id="statusText">Select an order from Drive or open the portal</span>
 </div>
-
 <div class="footer">made by <span>Ketan Vashisht</span></div>
 
 <script src="popup.js"></script>
