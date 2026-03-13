@@ -150,6 +150,33 @@ function copyUpdateUrl() {
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ── INIT ──
+
+// ── SPEED PREFS PERSISTENCE ──
+function saveSpeedPrefs() {
+  const prefs = {
+    speed: _speed,
+    filter:  document.getElementById('ciFilter')?.value  || '2500',
+    clear:   document.getElementById('ciClear')?.value   || '800',
+    qty:     document.getElementById('ciQty')?.value     || '600',
+    between: document.getElementById('ciBetween')?.value || '400',
+  };
+  chrome.storage.local.set({ speedPrefs: prefs });
+}
+
+function loadSpeedPrefs() {
+  chrome.storage.local.get('speedPrefs', ({ speedPrefs }) => {
+    if (!speedPrefs) return; // use defaults
+    // Restore custom input values first
+    const ci = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    ci('ciFilter',  speedPrefs.filter);
+    ci('ciClear',   speedPrefs.clear);
+    ci('ciQty',     speedPrefs.qty);
+    ci('ciBetween', speedPrefs.between);
+    // Then apply the speed mode (which reads the inputs)
+    setSpeed(speedPrefs.speed || 'normal');
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pasteArea').addEventListener('input', onPasteAreaInput);
   document.getElementById('btnLoad').addEventListener('click', loadFromPasteArea);
@@ -162,6 +189,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.speed-btn').forEach(btn => {
     btn.addEventListener('click', () => setSpeed(btn.dataset.speed));
   });
+
+  // Save custom values when inputs change
+  ['ciFilter','ciClear','ciQty','ciBetween'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', saveSpeedPrefs);
+  });
+
+  // Restore last used speed
+  loadSpeedPrefs();
 
   // Dev mode
   document.getElementById('devTriggerBtn').addEventListener('click', openDevMode);
@@ -433,6 +468,9 @@ function setSpeed(speed) {
   };
   const note = document.getElementById('speedNote');
   if (note) note.textContent = notes[speed] || '';
+
+  // Persist speed choice
+  saveSpeedPrefs();
 }
 
 function togglePaste() {

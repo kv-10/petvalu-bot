@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "Project: Herald",
-  "version": "2.0.7",
+  "version": "2.0.9",
   "description": "Automated order entry for Pet Valu portal",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "host_permissions": [
     "https://webportal.petvalu.com/*",
