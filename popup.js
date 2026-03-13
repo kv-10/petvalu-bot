@@ -1,3 +1,19 @@
+
+// Dynamically size the order list to fill available space
+function sizeOrderList() {
+  const list    = document.getElementById('driveOrderList');
+  const bottom  = document.querySelector('.drive-bottom');
+  const top     = document.querySelector('.drive-top');
+  const header  = document.querySelector('.header');
+  if (!list || !bottom || !top || !header) return;
+  const bodyH   = 600;
+  const headerH = header.offsetHeight;
+  const topH    = top.offsetHeight;
+  const bottomH = bottom.offsetHeight;
+  const avail   = bodyH - headerH - topH - bottomH - 8; // 8px buffer
+  list.style.maxHeight = Math.max(80, avail) + 'px';
+}
+
 // ── TIMINGS (ms) ──
 const SPEED_PRESETS = {
   normal: { afterFilter: 2500, afterClear: 800,  afterQty: 600,  betweenItems: 400 },
@@ -150,6 +166,7 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
+  sizeOrderList();
   document.getElementById('pasteArea').addEventListener('input', onPasteAreaInput);
   document.getElementById('btnLoad').addEventListener('click', loadFromPasteArea);
   document.getElementById('btnRefresh').addEventListener('click', loadDriveOrders);
@@ -258,7 +275,7 @@ function renderGroups(groups) {
     const totalStr   = hasCounts ? ` &nbsp;·&nbsp; <span class="sg-total">${totalItems} items</span>` : '';
     const orderRows = g.orders.map((o, oi) => {
       const cntStr = o.itemCount != null
-        ? ` &nbsp;<span class="sg-cnt">${o.itemCount} items</span>` : '';
+        ? ` &nbsp;·&nbsp; ${o.itemCount} items` : '';
       return `<div class="sg-order" data-gi="${gi}" data-oi="${oi}">
         <div>
           <div class="sg-op">${o.operator}</div>
@@ -306,7 +323,7 @@ async function backfillItemCounts(groups) {
       o.itemCount = content.items?.length ?? 0;
       // Update the specific DOM node
       const el = document.querySelector(`[data-gi="${gi}"][data-oi="${oi}"] .sg-meta`);
-      if (el) el.innerHTML = `${formatDate(o.dateStr)} &nbsp;<span class="sg-cnt">${o.itemCount} items</span>`;
+      if (el) el.innerHTML = `${formatDate(o.dateStr)} &nbsp;·&nbsp; ${o.itemCount} items`;
       // Update header total
       const totalItems = g.orders.reduce((s, x) => s + (x.itemCount ?? 0), 0);
       const hasCounts  = g.orders.some(x => x.itemCount != null);
@@ -421,7 +438,7 @@ function setSpeed(speed) {
 
   // Show/hide custom inputs
   const customPanel = document.getElementById('customInputs');
-  if (customPanel) customPanel.classList.toggle('show', speed === 'custom');
+  if (customPanel) { customPanel.classList.toggle('show', speed === 'custom'); sizeOrderList(); }
 
   // Speed note
   const notes = {
@@ -439,6 +456,7 @@ function togglePaste() {
   const toggle = document.getElementById('pasteToggle');
   const open   = body.classList.toggle('open');
   toggle.textContent = open ? '▴ Hide manual entry' : '▾ Enter order manually';
+  sizeOrderList();
 }
 
 // ── GMAIL TAB DETECTION ──

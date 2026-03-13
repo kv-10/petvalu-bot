@@ -89,10 +89,8 @@ body {
 /* ─── MAIN SCROLL (fills remaining height) ─── */
 .main-scroll {
   flex: 1;
+  overflow-y: auto;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 /* ─── SECTION ─── */
@@ -111,9 +109,6 @@ body {
   display: flex;
   flex-direction: column;
   padding: 0;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
 }
 .drive-top {
   flex-shrink: 0;
@@ -123,8 +118,7 @@ body {
   overflow-y: auto;
   padding: 0 13px 6px;
   min-height: 60px;
-  flex: 1;
-  min-height: 0;
+  max-height: 300px; /* JS will override */
 }
 .drive-bottom {
   flex-shrink: 0;
@@ -180,7 +174,7 @@ body {
 .sg-order:active { background: var(--s3); }
 .sg-op   { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.2; }
 .sg-meta { font-size: 10px; color: var(--muted); margin-top: 1px; font-family: 'IBM Plex Mono', monospace; }
-.sg-meta .sg-cnt { color: var(--accent); font-weight: 700; }
+.sg-meta .sg-cnt { color: var(--muted); font-weight: 600; }
 .sg-arr  { color: var(--accent); font-size: 15px; font-weight: 700; transition: transform 0.15s; flex-shrink: 0; }
 .sg-order:hover .sg-arr { transform: translateX(3px); }
 
