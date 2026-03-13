@@ -2,7 +2,7 @@
 <updates>
   <update>
     <app id="petvalu-bot@family">
-      <version>1.9.8</version>
+      <version>1.9.9</version>
       <update_link>https://petvalu-bot.vercel.app/petvalu-bot.xpi</update_link>
     </app>
   </update>
