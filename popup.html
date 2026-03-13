@@ -554,7 +554,7 @@ body {
   <div class="custom-inputs" id="customInputs">
     <div class="ci-row">
       <div><div class="ci-label">Filter Wait</div><div class="ci-unit">ms after search filter</div></div>
-      <input class="ci-input" id="ciFilter"  type="number" value="2500" min="500"  max="9999">
+      <input class="ci-input" id="ciFilter"  type="number" value="2500" min="0" max="9999">
     </div>
     <div class="ci-row">
       <div><div class="ci-label">After Clear</div><div class="ci-unit">ms after field cleared</div></div>
@@ -562,11 +562,26 @@ body {
     </div>
     <div class="ci-row">
       <div><div class="ci-label">After Qty</div><div class="ci-unit">ms after qty entered</div></div>
-      <input class="ci-input" id="ciQty"     type="number" value="600"  min="100"  max="9999">
+      <input class="ci-input" id="ciQty"     type="number" value="600"  min="0" max="9999">
     </div>
     <div class="ci-row">
       <div><div class="ci-label">Between Items</div><div class="ci-unit">ms gap between rows</div></div>
-      <input class="ci-input" id="ciBetween" type="number" value="400"  min="50"   max="9999">
+      <input class="ci-input" id="ciBetween" type="number" value="400"  min="0" max="9999">
+    </div>
+    <div class="ci-row">
+      <div><div class="ci-label">Sub Search Wait</div><div class="ci-unit">ms after substitute filter</div></div>
+      <input class="ci-input" id="ciSubFilter" type="number" value="2500" min="0" max="9999">
+    </div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:4px 0">
+      <div>
+        <div class="ci-label">Overwrite Mode</div>
+        <div class="ci-unit" id="ciOverwriteLabel">Off — clear field first</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;margin-top:2px">
+        <input type="checkbox" id="ciOverwriteToggle" style="opacity:0;width:0;height:0">
+        <span id="ciOverwriteTrack" style="position:absolute;cursor:pointer;inset:0;background:var(--s3);border-radius:20px;transition:background 0.2s"></span>
+        <span id="ciOverwriteThumb" style="position:absolute;content:'';height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:transform 0.2s;pointer-events:none"></span>
+      </label>
     </div>
   </div>
   <div id="speedNote" style="font-size:10px;color:var(--muted);margin-top:4px;text-align:center">Filter: 2500ms · Clear: 800ms · Qty: 600ms · Between: 400ms</div>
@@ -583,6 +598,14 @@ body {
 </div>
 <div class="footer">made by <span>Ketan Vashisht</span></div>
 
+<script>
+// Overwrite toggle visual
+document.getElementById('ciOverwriteToggle').addEventListener('change', function() {
+  const on = this.checked;
+  document.getElementById('ciOverwriteTrack').style.background = on ? 'var(--accent)' : 'var(--s3)';
+  document.getElementById('ciOverwriteThumb').style.transform  = on ? 'translateX(16px)' : 'translateX(0)';
+});
+</script>
 <script src="popup.js"></script>
 </body>
 </html>

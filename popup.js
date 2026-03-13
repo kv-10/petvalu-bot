@@ -1,21 +1,24 @@
 
 // ── TIMINGS (ms) ──
 const SPEED_PRESETS = {
-  normal: { afterFilter: 2500, afterClear: 800,  afterQty: 600,  betweenItems: 400 },
-  fast:   { afterFilter: 1600, afterClear: 600,  afterQty: 400,  betweenItems: 250 },
-  warp:   { afterFilter: 3000, afterClear: 0,    afterQty: 700,  betweenItems: 150 },
+  normal: { afterFilter: 2500, afterClear: 800,  afterQty: 600,  betweenItems: 400, afterSubFilter: 2500 },
+  fast:   { afterFilter: 1600, afterClear: 600,  afterQty: 400,  betweenItems: 250, afterSubFilter: 1600 },
+  warp:   { afterFilter: 3000, afterClear: 0,    afterQty: 700,  betweenItems: 150, afterSubFilter: 3000 },
 };
 let _speed = 'normal';
+let _overwriteMode = false;
 function TIMINGS() {
   if (_speed === 'custom') {
     return {
-      afterFilter:  Math.max(500,  parseInt(document.getElementById('ciFilter')?.value)  || 2500),
-      afterClear:   Math.max(0,    parseInt(document.getElementById('ciClear')?.value)   || 800),
-      afterQty:     Math.max(100,  parseInt(document.getElementById('ciQty')?.value)     || 600),
-      betweenItems: Math.max(50,   parseInt(document.getElementById('ciBetween')?.value) || 400),
+      afterFilter:    parseInt(document.getElementById('ciFilter')?.value)    || 2500,
+      afterClear:     parseInt(document.getElementById('ciClear')?.value)     || 800,
+      afterQty:       parseInt(document.getElementById('ciQty')?.value)       || 600,
+      betweenItems:   parseInt(document.getElementById('ciBetween')?.value)   || 400,
+      afterSubFilter: parseInt(document.getElementById('ciSubFilter')?.value) || 2500,
+      overwriteMode:  _overwriteMode,
     };
   }
-  return SPEED_PRESETS[_speed] || SPEED_PRESETS.normal;
+  return { ...SPEED_PRESETS[_speed] || SPEED_PRESETS.normal, overwriteMode: false };
 }
 function isWarp()  { return _speed === 'warp'; }
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6jkcvoMrJ4XJUWAl_fUpv0bRNeHYTpUX64wCU534_HW7NxB3oJKLw9ogxP7-CwJno/exec';
@@ -152,13 +155,24 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 // ── INIT ──
 
 // ── SPEED PREFS PERSISTENCE ──
+function updateOverwriteLabel() {
+  const lbl = document.getElementById('ciOverwriteLabel');
+  if (lbl) lbl.textContent = _overwriteMode ? 'On — select-all before typing' : 'Off — clear field first';
+  const track = document.getElementById('ciOverwriteTrack');
+  const thumb = document.getElementById('ciOverwriteThumb');
+  if (track) track.style.background  = _overwriteMode ? 'var(--accent)' : 'var(--s3)';
+  if (thumb) thumb.style.transform   = _overwriteMode ? 'translateX(16px)' : 'translateX(0)';
+}
+
 function saveSpeedPrefs() {
   const prefs = {
     speed: _speed,
-    filter:  document.getElementById('ciFilter')?.value  || '2500',
-    clear:   document.getElementById('ciClear')?.value   || '800',
-    qty:     document.getElementById('ciQty')?.value     || '600',
-    between: document.getElementById('ciBetween')?.value || '400',
+    filter:    document.getElementById('ciFilter')?.value    || '2500',
+    clear:     document.getElementById('ciClear')?.value     || '800',
+    qty:       document.getElementById('ciQty')?.value       || '600',
+    between:   document.getElementById('ciBetween')?.value   || '400',
+    subFilter: document.getElementById('ciSubFilter')?.value || '2500',
+    overwrite: _overwriteMode,
   };
   chrome.storage.local.set({ speedPrefs: prefs });
 }
@@ -168,10 +182,18 @@ function loadSpeedPrefs() {
     if (!speedPrefs) return; // use defaults
     // Restore custom input values first
     const ci = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-    ci('ciFilter',  speedPrefs.filter);
-    ci('ciClear',   speedPrefs.clear);
-    ci('ciQty',     speedPrefs.qty);
-    ci('ciBetween', speedPrefs.between);
+    ci('ciFilter',    speedPrefs.filter);
+    ci('ciClear',     speedPrefs.clear);
+    ci('ciQty',       speedPrefs.qty);
+    ci('ciBetween',   speedPrefs.between);
+    ci('ciSubFilter', speedPrefs.subFilter);
+    // Restore overwrite toggle
+    if (speedPrefs.overwrite != null) {
+      _overwriteMode = speedPrefs.overwrite;
+      const tog = document.getElementById('ciOverwriteToggle');
+      if (tog) tog.checked = _overwriteMode;
+      updateOverwriteLabel();
+    }
     // Then apply the speed mode (which reads the inputs)
     setSpeed(speedPrefs.speed || 'normal');
   });
@@ -191,8 +213,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Save custom values when inputs change
-  ['ciFilter','ciClear','ciQty','ciBetween'].forEach(id => {
+  ['ciFilter','ciClear','ciQty','ciBetween','ciSubFilter'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', saveSpeedPrefs);
+  });
+  document.getElementById('ciOverwriteToggle')?.addEventListener('change', e => {
+    _overwriteMode = e.target.checked;
+    updateOverwriteLabel();
+    saveSpeedPrefs();
   });
 
   // Restore last used speed
@@ -894,10 +921,17 @@ async function botScript(orderData, timings) {
   }
   async function clearFilter(label) {
     const input = getFilterInput(label); if (!input) return;
-    input.value = '';
-    input.dispatchEvent(new Event('input', { bubbles:true }));
-    input.dispatchEvent(new Event('change', { bubbles:true }));
-    if (timings.afterClear > 0) await sleep(timings.afterClear);
+    if (timings.overwriteMode) {
+      // Select-all so next setFilter overwrites instead of appending
+      input.focus();
+      input.select();
+      // Don't clear value or dispatch events — next setFilter will overwrite
+    } else {
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles:true }));
+      input.dispatchEvent(new Event('change', { bubbles:true }));
+      if (timings.afterClear > 0) await sleep(timings.afterClear);
+    }
   }
   function getVisibleRows() {
     return Array.from(document.querySelectorAll('.ag-row[role="row"]'))
@@ -1019,7 +1053,7 @@ async function botScript(orderData, timings) {
       sendProgress(`${id} — not in Item No, trying Substituted Item...`, i, items.length, 'info', results);
       if (!warp) await clearFilter('Item No Filter Input');
       await setFilter('Substituted Item Filter Input', id);
-      rows = warp ? await waitForRows(timings.afterFilter) : (await sleep(timings.afterFilter), getVisibleRows());
+      rows = warp ? await waitForRows(timings.afterSubFilter || timings.afterFilter) : (await sleep(timings.afterSubFilter ?? timings.afterFilter), getVisibleRows());
       if (warp && rows.length > 0) await sleep(250);
       targetRow = rows.length > 0 ? rows[0] : null;
       usedSub = true;
