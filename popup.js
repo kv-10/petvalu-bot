@@ -81,7 +81,7 @@ async function runStartup() {
     clearTimeout(fetchTimeout);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const xml = await res.text();
-    const match = xml.match(/<version>([^<]+)<\/version>/);
+    const match = xml.match(/<em:version>([^<]+)<\/em:version>/);
     if (!match) throw new Error('Could not parse update.xml');
     const remoteVersion = match[1];
 
