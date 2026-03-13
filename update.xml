@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <updates>
-  <update>
-    <app id="petvalu-bot@family">
-      <version>2.1.0</version>
-      <update_link>https://petvalu-bot.vercel.app/petvalu-bot.xpi</update_link>
-    </app>
-  </update>
+  <addon id="petvalu-bot@family">
+    <updates>
+      <update>
+        <em:version>2.2.0</em:version>
+        <em:updateLink>https://petvalu-bot.vercel.app/petvalu-bot.xpi</em:updateLink>
+      </update>
+    </updates>
+  </addon>
 </updates>
