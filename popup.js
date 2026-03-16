@@ -767,12 +767,23 @@ function renderLog() {
   if (!wrap) return;
   const logs = localState?.log || [];
   const existing = wrap.children.length;
-  logs.slice(existing).forEach(l => {
-    const line = document.createElement('div');
-    line.className = 'log-line ' + (l.kind || 'info');
-    line.textContent = l.msg;
-    wrap.appendChild(line);
-  });
+  // If log shrank (e.g. trimmed or cleared), wipe DOM and re-render from scratch
+  if (logs.length < existing) {
+    wrap.innerHTML = '';
+    logs.forEach(l => {
+      const line = document.createElement('div');
+      line.className = 'log-line ' + (l.kind || 'info');
+      line.textContent = l.msg;
+      wrap.appendChild(line);
+    });
+  } else {
+    logs.slice(existing).forEach(l => {
+      const line = document.createElement('div');
+      line.className = 'log-line ' + (l.kind || 'info');
+      line.textContent = l.msg;
+      wrap.appendChild(line);
+    });
+  }
   wrap.scrollTop = wrap.scrollHeight;
 }
 

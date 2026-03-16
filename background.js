@@ -27,7 +27,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   if (msg.type === 'APPEND_LOG') {
     botState.log.push({ msg: msg.msg, kind: msg.kind });
-    if (botState.log.length > 200) botState.log = botState.log.slice(-200);
     sendResponse({ ok: true });
     return true;
   }
@@ -43,7 +42,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     botState.progress = { current: msg.current, total: msg.total };
     if (msg.results) botState.results = msg.results;
     botState.log.push({ msg: msg.msg, kind: msg.kind || 'info' });
-    if (botState.log.length > 200) botState.log = botState.log.slice(-200);
     // Push directly to popup — no polling needed
     chrome.runtime.sendMessage({ type: 'PUSH_PROGRESS', state: { ...botState } }).catch(() => {});
     sendResponse({ ok: true });
