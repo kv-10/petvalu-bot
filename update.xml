@@ -3,7 +3,7 @@
   <addon id="petvalu-bot@family">
     <updates>
       <update>
-        <em:version>2.2.2</em:version>
+        <em:version>2.2.4</em:version>
         <em:updateLink>https://petvalu-bot.vercel.app/petvalu-bot.xpi</em:updateLink>
       </update>
     </updates>
