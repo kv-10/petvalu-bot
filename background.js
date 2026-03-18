@@ -1,5 +1,5 @@
 // Background service worker - persists bot state across popup open/close
-// v2.2.10
+// v2.2.10 build-trigger
 let botState = {
   phase: 'idle',
   orderData: null,
@@ -12,7 +12,6 @@ let botState = {
   wasStopped: false
 };
 
-// Toggle sidebar when toolbar icon clicked (Firefox)
 chrome.action.onClicked.addListener(() => {
   browser.sidebarAction.toggle();
 });
@@ -68,7 +67,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })
       .then(r => r.text())
       .then(text => sendResponse({ ok: true, text }))
-      .catch(e  => sendResponse({ ok: false, error: e.message }));
+      .catch(e => sendResponse({ ok: false, error: e.message }));
     return true;
   }
   if (msg.type === 'DRIVE_FETCH') {
@@ -81,8 +80,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         return r.text();
       })
       .then(text => {
-        const data = JSON.parse(text);
-        sendResponse({ ok: true, data });
+        sendResponse({ ok: true, data: JSON.parse(text) });
       })
       .catch(e => {
         clearTimeout(timeout);
