@@ -23,8 +23,14 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract icons from files.zip
-        run: unzip -o files.zip icon16.png icon32.png icon48.png icon.png -d .
+      - name: List files.zip contents
+        run: unzip -l files.zip
+
+      - name: Extract all from files.zip
+        run: unzip -o files.zip -d fromzip/
+
+      - name: List extracted files
+        run: ls -la fromzip/
 
       - name: Build XPI
         run: |
@@ -35,11 +41,11 @@ jobs:
             background.js \
             gmail.js \
             vercel.json \
-            icon16.png \
-            icon32.png \
-            icon48.png \
+            fromzip/icon16.png \
+            fromzip/icon32.png \
+            fromzip/icon48.png \
             icon128.png \
-            icon.png
+            fromzip/icon.png
 
       - name: Commit and push XPI
         run: |
