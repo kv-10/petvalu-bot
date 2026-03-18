@@ -7,7 +7,8 @@ let botState = {
   progress: { current: 0, total: 0 },
   stopRequested: false,
   timerStart: null,
-  runId: null
+  runId: null,
+  wasStopped: false
 };
 
 // Toggle sidebar when toolbar icon clicked (Firefox)
@@ -36,26 +37,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   if (msg.type === 'PV_PROGRESS') {
     if (msg.runId && botState.runId && msg.runId !== botState.runId) {
-      sendResponse({ ok: true }); // stale message from previous run — ignore
+      sendResponse({ ok: true });
       return true;
     }
     botState.progress = { current: msg.current, total: msg.total };
     if (msg.results) botState.results = msg.results;
     botState.log.push({ msg: msg.msg, kind: msg.kind || 'info' });
-    // Push directly to popup — no polling needed
     chrome.runtime.sendMessage({ type: 'PUSH_PROGRESS', state: { ...botState } }).catch(() => {});
     sendResponse({ ok: true });
     return true;
   }
   if (msg.type === 'PV_COMPLETE') {
     if (msg.runId && botState.runId && msg.runId !== botState.runId) {
-      sendResponse({ ok: true }); // stale — ignore
+      sendResponse({ ok: true });
       return true;
     }
     botState.phase = 'complete';
     botState.results = msg.results;
+    botState.wasStopped = msg.wasStopped || false;
     botState.log.push({ msg: '✓ Bot finished', kind: 'ok' });
-    // Push completion directly to popup
     chrome.runtime.sendMessage({ type: 'PUSH_PROGRESS', state: { ...botState } }).catch(() => {});
     sendResponse({ ok: true });
     return true;
@@ -80,13 +80,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         return r.text();
       })
       .then(text => {
-        console.log('[PV] Drive response:', text.slice(0, 200));
         const data = JSON.parse(text);
         sendResponse({ ok: true, data });
       })
       .catch(e => {
         clearTimeout(timeout);
-        console.error('[PV] Drive fetch error:', e.message);
         sendResponse({ ok: false, error: e.message });
       });
     return true;
