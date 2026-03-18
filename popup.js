@@ -3,7 +3,7 @@
 const SPEED_PRESETS = {
   normal: { afterFilter: 2500, afterClear: 800,  afterQty: 600,  betweenItems: 400, afterSubFilter: 2500 },
   fast:   { afterFilter: 1600, afterClear: 600,  afterQty: 400,  betweenItems: 250, afterSubFilter: 1600 },
-  warp:   { afterFilter: 3000, afterClear: 0,    afterQty: 700,  betweenItems: 150, afterSubFilter: 3000 },
+  warp:   { afterFilter: 600,  afterClear: 0,    afterQty: 100,  betweenItems: 100, afterSubFilter: 600, overwriteMode: true },
 };
 let _speed = 'normal';
 let _overwriteMode = false;
@@ -41,7 +41,6 @@ function stepShow(id) {
 }
 
 async function runStartup() {
-  // Show init step
   stepShow('stepInit');
   stepSet('stepInit', 'spinning-ring', '', 'Loading state...');
   await sleep(300);
@@ -49,7 +48,6 @@ async function runStartup() {
   localState = await getState();
   stepSet('stepInit', 'done', '✓', 'Loaded');
 
-  // If bot is mid-run, skip update check and go straight in
   if (localState.phase !== 'idle') {
     stepShow('stepUpdate');
     stepSet('stepUpdate', 'done', '✓', 'Skipped — bot is running');
@@ -64,7 +62,6 @@ async function runStartup() {
     return;
   }
 
-  // Update check
   await sleep(200);
   stepShow('stepUpdate');
   stepSet('stepUpdate', 'spinning-ring', '', 'Checking for updates...');
@@ -88,20 +85,16 @@ async function runStartup() {
     if (remoteVersion !== currentVersion) {
       stepSet('stepUpdate', 'update', '↑', 'v' + remoteVersion + ' available');
       await sleep(300);
-
-      // Fade out startup screen, show update screen
       const secStartup = document.getElementById('secStartup');
       const secUpdate  = document.getElementById('secUpdate');
       secStartup.style.transition = 'opacity 0.3s ease';
       secStartup.style.opacity = '0';
       await sleep(300);
       secStartup.style.display = 'none';
-
       document.getElementById('updTitle').textContent = 'Update Available';
       document.getElementById('updVersion').textContent = currentVersion + ' → v' + remoteVersion;
       secUpdate.classList.add('show');
       return;
-
     } else {
       stepSet('stepUpdate', 'done', '✓', 'Up to date (v' + currentVersion + ')');
     }
@@ -110,7 +103,6 @@ async function runStartup() {
     stepSet('stepUpdate', 'warn', '!', 'Could not check — continuing (v' + cv + ')');
   }
 
-  // Ready
   await sleep(200);
   stepShow('stepReady');
   stepSet('stepReady', 'spinning-ring', '', 'Loading orders...');
@@ -125,7 +117,6 @@ async function runStartup() {
 function hideStartup() {
   const el = document.getElementById('secStartup');
   if (!el) return;
-  // Show version number in header
   const vb = document.getElementById('versionBadge');
   if (vb) {
     browser.runtime.getManifest
@@ -152,8 +143,6 @@ function copyUpdateUrl() {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ── INIT ──
-
 // ── SPEED PREFS PERSISTENCE ──
 function updateOverwriteLabel() {
   const lbl = document.getElementById('ciOverwriteLabel');
@@ -162,7 +151,6 @@ function updateOverwriteLabel() {
   const thumb = document.getElementById('ciOverwriteThumb');
   if (track) track.style.background  = _overwriteMode ? 'var(--accent)' : 'var(--s3)';
   if (thumb) thumb.style.transform   = _overwriteMode ? 'translateX(16px)' : 'translateX(0)';
-  // Grey out After Clear when overwrite mode is on — it has no effect
   const clearRow = document.getElementById('ciClearRow');
   if (clearRow) {
     clearRow.style.opacity      = _overwriteMode ? '0.35' : '1';
@@ -185,22 +173,19 @@ function saveSpeedPrefs() {
 
 function loadSpeedPrefs() {
   chrome.storage.local.get('speedPrefs', ({ speedPrefs }) => {
-    if (!speedPrefs) return; // use defaults
-    // Restore custom input values first
+    if (!speedPrefs) return;
     const ci = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
     ci('ciFilter',    speedPrefs.filter);
     ci('ciClear',     speedPrefs.clear);
     ci('ciQty',       speedPrefs.qty);
     ci('ciBetween',   speedPrefs.between);
     ci('ciSubFilter', speedPrefs.subFilter);
-    // Restore overwrite toggle
     if (speedPrefs.overwrite != null) {
       _overwriteMode = speedPrefs.overwrite;
       const tog = document.getElementById('ciOverwriteToggle');
       if (tog) tog.checked = _overwriteMode;
       updateOverwriteLabel();
     }
-    // Then apply the speed mode (which reads the inputs)
     setSpeed(speedPrefs.speed || 'normal');
   });
 }
@@ -211,14 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnRefresh').addEventListener('click', loadDriveOrders);
   document.getElementById('pasteToggle').addEventListener('click', togglePaste);
 
-
-
-  // Speed buttons
   document.querySelectorAll('.speed-btn').forEach(btn => {
     btn.addEventListener('click', () => setSpeed(btn.dataset.speed));
   });
 
-  // Save custom values when inputs change
   ['ciFilter','ciClear','ciQty','ciBetween','ciSubFilter'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', saveSpeedPrefs);
   });
@@ -228,10 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSpeedPrefs();
   });
 
-  // Restore last used speed
   loadSpeedPrefs();
 
-  // Dev mode
   document.getElementById('devTriggerBtn').addEventListener('click', openDevMode);
   document.getElementById('devCloseBtn').addEventListener('click', closeDevMode);
   document.getElementById('devEmailBtn').addEventListener('click', devTestEmail);
@@ -253,12 +232,9 @@ function storeLabel(name) {
   const num = STORE_NUMBERS[name];
   return num ? `${name} <span style="font-size:11px;opacity:0.7;font-weight:600">#${num}</span>` : name;
 }
-function storeLabelPlain(name) {
-  return name; // store# shown only in sub-line, not the header title
-}
+function storeLabelPlain(name) { return name; }
 
 function parseFilename(name) {
-  // e.g. Nipun_Lakeshore_Rd_2026-03-08.json
   const base   = name.replace('.json', '');
   const parts  = base.split('_');
   const operator = parts[0];
@@ -269,15 +245,12 @@ function parseFilename(name) {
 }
 
 function groupOrders(files) {
-  // Parse each file
   const parsed = files.map(f => ({ ...f, ...parseFilename(f.name) }));
-  // Group by store
   const byStore = {};
   parsed.forEach(f => {
     if (!byStore[f.store]) byStore[f.store] = [];
     byStore[f.store].push(f);
   });
-  // Within each store, pair files within 2 days
   const groups = [];
   Object.entries(byStore).forEach(([store, orders]) => {
     orders.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
@@ -285,22 +258,16 @@ function groupOrders(files) {
     orders.forEach((o, i) => {
       if (used.has(i)) return;
       const group = { store, orders: [o] };
-      // Look for a partner within 2 days
-      orders.forEach((o2, j) => {
-        if (j === i || used.has(j)) return;
-        const diff = Math.abs(new Date(o.dateStr) - new Date(o2.dateStr)) / 86400000;
-        if (diff <= 2 && o2.operator !== o.operator) {
-          group.orders.push(o2);
-          used.add(j);
-        }
-      });
       used.add(i);
-      // Sort so older runs first (newer overwrites on conflicts)
+      orders.forEach((o2, j) => {
+        if (used.has(j)) return;
+        const diff = Math.abs(new Date(o.dateStr) - new Date(o2.dateStr)) / 86400000;
+        if (diff <= 2) { group.orders.push(o2); used.add(j); }
+      });
       group.orders.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
       groups.push(group);
     });
   });
-  // Sort groups: most recent date first
   groups.sort((a, b) => {
     const aDate = Math.max(...a.orders.map(o => new Date(o.dateStr)));
     const bDate = Math.max(...b.orders.map(o => new Date(o.dateStr)));
@@ -314,41 +281,57 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function renderGroups(groups) {
-  const list = document.getElementById('driveOrderList');
-  list.innerHTML = groups.map((g, gi) => {
-    const dateLabel = g.orders.length === 2 && g.orders[0].dateStr !== g.orders[1].dateStr
-      ? `${formatDate(g.orders[0].dateStr)} – ${formatDate(g.orders[1].dateStr)}`
-      : formatDate(g.orders[g.orders.length - 1].dateStr);
-    // Store# only in sub-line, not in the heading
-    const storeNum = storeLabel(g.store).match(/#\d+/)?.[0] || '';
-    const totalItems = g.orders.reduce((s, o) => s + (o.itemCount ?? 0), 0);
-    const hasCounts  = g.orders.some(o => o.itemCount != null);
-    const totalStr   = hasCounts ? ` &nbsp;·&nbsp; <span class="sg-total">${totalItems} items</span>` : '';
-    const orderRows = g.orders.map((o, oi) => {
-      const cntStr = o.itemCount != null
-        ? ` &nbsp;·&nbsp; ${o.itemCount} items` : '';
-      return `<div class="sg-order" data-gi="${gi}" data-oi="${oi}">
-        <div>
-          <div class="sg-op">${o.operator}</div>
-          <div class="sg-meta">${formatDate(o.dateStr)}${cntStr}</div>
-        </div>
-        <div class="sg-arr">›</div>
-      </div>`;
-    }).join('');
-    const bothBtn = g.orders.length >= 2
-      ? `<div class="sg-both" data-gi="${gi}" data-both="1">Load Both Together</div>`
-      : '';
-    return `<div class="store-group">
-      <div class="sg-header">
-        <div class="sg-store-name">${storeLabelPlain(g.store)}</div>
-        <div class="sg-store-sub" id="sg-sub-${gi}">${storeNum} &nbsp;·&nbsp; ${dateLabel}${totalStr}</div>
+function groupCard(g, gi) {
+  const dates = [...new Set(g.orders.map(o => o.dateStr))].sort();
+  const dateLabel = dates.length > 1
+    ? `${formatDate(dates[0])} – ${formatDate(dates[dates.length - 1])}`
+    : formatDate(dates[0]);
+  const storeNum = storeLabel(g.store).match(/#\d+/)?.[0] || '';
+  const orderRows = g.orders.map((o, oi) => {
+    const cntStr = o.itemCount != null ? ` &nbsp;·&nbsp; ${o.itemCount} items` : '';
+    return `<div class="sg-order" data-gi="${gi}" data-oi="${oi}">
+      <div>
+        <div class="sg-op">${o.operator}</div>
+        <div class="sg-meta">${formatDate(o.dateStr)}${cntStr}</div>
       </div>
-      ${orderRows}
-      ${bothBtn}
+      <div class="sg-arr">›</div>
     </div>`;
   }).join('');
-  // Wire up listeners
+  const loadLabel = g.orders.length === 2 ? 'Load Both Together' : `Load All Together (${g.orders.length})`;
+  const bothBtn = g.orders.length >= 2
+    ? `<div class="sg-both" data-gi="${gi}" data-both="1">${loadLabel}</div>`
+    : '';
+  return `<div class="store-group">
+    <div class="sg-header">
+      <div class="sg-store-name">${storeLabelPlain(g.store)}</div>
+      <div class="sg-store-sub" id="sg-sub-${gi}">${storeNum} &nbsp;·&nbsp; ${dateLabel}</div>
+    </div>
+    ${orderRows}
+    ${bothBtn}
+  </div>`;
+}
+
+function renderGroups(groups) {
+  const list   = document.getElementById('driveOrderList');
+  const recent = groups.slice(0, 3);
+  const older  = groups.slice(3);
+
+  let html = recent.map((g, gi) => groupCard(g, gi)).join('');
+
+  if (older.length > 0) {
+    html += `<div id="olderToggle" style="text-align:center;padding:10px 0 4px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);user-select:none">
+      <span id="olderToggleLabel">▾ Show ${older.length} older order${older.length !== 1 ? 's' : ''}</span>
+    </div>
+    <div id="olderOrders" style="display:none">
+      ${older.map((g, i) => groupCard(g, 3 + i)).join('')}
+    </div>`;
+  }
+
+  list.innerHTML = html;
+
+  const olderToggleEl = list.querySelector('#olderToggle');
+  if (olderToggleEl) olderToggleEl.addEventListener('click', toggleOlderOrders);
+
   list.querySelectorAll('.sg-order').forEach(el => {
     el.addEventListener('click', () => {
       const g = groups[+el.dataset.gi];
@@ -364,32 +347,43 @@ function renderGroups(groups) {
   });
 }
 
+function toggleOlderOrders() {
+  const el    = document.getElementById('olderOrders');
+  const label = document.getElementById('olderToggleLabel');
+  const count = document.querySelectorAll('#olderOrders .store-group').length;
+  if (!el) return;
+  const open = el.style.display === 'none';
+  el.style.display = open ? '' : 'none';
+  if (label) label.textContent = open
+    ? `▴ Hide older orders`
+    : `▾ Show ${count} older order${count !== 1 ? 's' : ''}`;
+}
+
 async function backfillItemCounts(groups) {
-  // Fetch all JSON files in parallel, update counts in place
-  const allOrders = groups.flatMap((g, gi) => g.orders.map((o, oi) => ({ g, gi, o, oi })));
-  // Only fetch JSON files (not CSV duplicates)
-  const jsonOrders = allOrders.filter(({ o }) => o.name && o.name.endsWith('.json'));
-  await Promise.all(jsonOrders.map(async ({ g, gi, o, oi }) => {
+  await Promise.all(groups.map(async (g, gi) => {
+    const jsonOrders = g.orders.filter(o => o.name && o.name.endsWith('.json'));
+    if (!jsonOrders.length) return;
     try {
-      const content = await fetchOrder(o.id);
-      o.itemCount = content.items?.length ?? 0;
-      // Update the specific DOM node
-      const el = document.querySelector(`[data-gi="${gi}"][data-oi="${oi}"] .sg-meta`);
-      if (el) el.innerHTML = `${formatDate(o.dateStr)} &nbsp;·&nbsp; ${o.itemCount} items`;
-      // Update header total
-      const totalItems = g.orders.reduce((s, x) => s + (x.itemCount ?? 0), 0);
-      const hasCounts  = g.orders.some(x => x.itemCount != null);
-      if (hasCounts) {
-        const storeNum   = storeLabel(g.store).match(/#\d+/)?.[0] || '';
-        const dateLabel  = g.orders.length === 2 && g.orders[0].dateStr !== g.orders[1].dateStr
-          ? `${formatDate(g.orders[0].dateStr)} – ${formatDate(g.orders[1].dateStr)}`
-          : formatDate(g.orders[g.orders.length - 1].dateStr);
-        const subEl = document.getElementById(`sg-sub-${gi}`);
-        // Show ~ prefix when multiple orders (sum may overcount duplicates)
-        const countPrefix = g.orders.length >= 2 ? '~' : '';
-        if (subEl) subEl.innerHTML = `${storeNum} &nbsp;·&nbsp; ${dateLabel} &nbsp;·&nbsp; <span class="sg-total">${countPrefix}${totalItems} items</span>`;
-      }
-    } catch(e) { /* silent — counts just won't show */ }
+      const contents = await Promise.all(jsonOrders.map(o => fetchOrder(o.id)));
+      contents.forEach((content, ci) => {
+        const o  = jsonOrders[ci];
+        const oi = g.orders.indexOf(o);
+        o.itemCount = content.items?.length ?? 0;
+        const el = document.querySelector(`[data-gi="${gi}"][data-oi="${oi}"] .sg-meta`);
+        if (el) el.innerHTML = `${formatDate(o.dateStr)} &nbsp;·&nbsp; ${o.itemCount} items`;
+      });
+      // Accurate deduplicated total
+      const itemMap = new Map();
+      contents.forEach(c => c.items?.forEach(i => itemMap.set(String(i.item), i)));
+      const mergedCount = itemMap.size;
+      const storeNum  = storeLabel(g.store).match(/#\d+/)?.[0] || '';
+      const dates     = [...new Set(g.orders.map(o => o.dateStr))].sort();
+      const dateLabel = dates.length > 1
+        ? `${formatDate(dates[0])} – ${formatDate(dates[dates.length - 1])}`
+        : formatDate(dates[0]);
+      const subEl = document.getElementById(`sg-sub-${gi}`);
+      if (subEl) subEl.innerHTML = `${storeNum} &nbsp;·&nbsp; ${dateLabel} &nbsp;·&nbsp; <span class="sg-total">${mergedCount} items</span>`;
+    } catch(e) { /* silent */ }
   }));
 }
 
@@ -407,10 +401,8 @@ async function loadDriveOrders() {
       return;
     }
     const groups = groupOrders(data.files.filter(f => !f.name.startsWith('CATALOG_')));
-    // Render immediately without item counts
     renderGroups(groups);
-    // Then backfill item counts in background
-    backfillItemCounts(groups);
+    backfillItemCounts(groups.slice(0, 3));
   } catch(e) {
     console.error('[PV] loadDriveOrders error:', e);
     list.innerHTML = `<div style="text-align:center;padding:16px;color:var(--red);font-size:12px">Error: ${e.message}</div>`;
@@ -440,26 +432,25 @@ async function loadFromDrive(fileId, filename) {
 async function loadBothFromDrive(orders, gi) {
   setStatus('yellow', 'Loading orders...');
   try {
-    const [a, b] = await Promise.all(orders.map(o => fetchOrder(o.id)));
-    // Merge: combine items, b overwrites a on duplicate item numbers
+    const contents = await Promise.all(orders.map(o => fetchOrder(o.id)));
     const itemMap = new Map();
-    a.items.forEach(i => itemMap.set(String(i.item), i));
-    b.items.forEach(i => itemMap.set(String(i.item), i)); // b wins on overlap
+    contents.forEach(content => {
+      content.items.forEach(i => itemMap.set(String(i.item), i));
+    });
     const merged = {
-      store: a.store,
-      date: b.date || a.date,
+      store: contents[0].store,
+      date: contents[contents.length - 1].date || contents[0].date,
       items: Array.from(itemMap.values())
     };
     await loadOrder(merged);
-    // Correct the store group header to show deduplicated count
     if (gi != null) {
       const subEl = document.getElementById(`sg-sub-${gi}`);
       if (subEl) {
         const span = subEl.querySelector('.sg-total');
-        if (span) span.textContent = merged.items.length + ' items'; // exact, no ~
+        if (span) span.textContent = merged.items.length + ' items';
       }
     }
-    setStatus('green', `Loaded both: ${storeLabelPlain(merged.store)} — ${merged.items.length} items`);
+    setStatus('green', `Loaded: ${storeLabelPlain(merged.store)} — ${merged.items.length} items`);
   } catch(e) {
     setStatus('red', 'Failed to load orders from Drive');
   }
@@ -481,16 +472,75 @@ async function loadOrder(data) {
 function setSpeed(speed) {
   _speed = speed;
 
-  // Flame sweep on warp
+  // Lightning animation on warp
   const warpBtn = document.getElementById('speedWarp');
   if (speed === 'warp' && warpBtn) {
-    warpBtn.classList.remove('flame-sweep');
-    void warpBtn.offsetWidth; // reflow to restart animation
-    warpBtn.classList.add('flame-sweep');
-    setTimeout(() => warpBtn.classList.remove('flame-sweep'), 600);
+    warpBtn.querySelectorAll('.lightning-svg').forEach(el => el.remove());
+    warpBtn.classList.remove('warp-lightning');
+    void warpBtn.offsetWidth;
+    warpBtn.classList.add('warp-lightning');
+
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'lightning-svg');
+    svg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;overflow:visible';
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+
+    const defs = document.createElementNS(ns, 'defs');
+    const filter = document.createElementNS(ns, 'filter');
+    filter.setAttribute('id', 'bolt-glow');
+    filter.setAttribute('x', '-80%'); filter.setAttribute('y', '-80%');
+    filter.setAttribute('width', '260%'); filter.setAttribute('height', '260%');
+    const blur = document.createElementNS(ns, 'feGaussianBlur');
+    blur.setAttribute('stdDeviation', '2.5'); blur.setAttribute('result', 'blur');
+    const merge = document.createElementNS(ns, 'feMerge');
+    ['blur','blur','SourceGraphic'].forEach(n => {
+      const node = document.createElementNS(ns, 'feMergeNode');
+      node.setAttribute('in', n); merge.appendChild(node);
+    });
+    filter.appendChild(blur); filter.appendChild(merge);
+    defs.appendChild(filter); svg.appendChild(defs);
+
+    function makePath(d, stroke, width, dashLen, delay) {
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('stroke', stroke);
+      p.setAttribute('stroke-width', String(width));
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+      p.setAttribute('filter', 'url(#bolt-glow)');
+      const anim = delay ? `boltDraw 0.85s ease forwards ${delay}s,boltFlash 0.85s ease forwards ${delay}s`
+                         : 'boltDraw 0.85s ease forwards,boltFlash 0.85s ease forwards';
+      p.style.cssText = `stroke-dasharray:${dashLen};stroke-dashoffset:${dashLen};animation:${anim}`;
+      return p;
+    }
+    function makeBranch(d, stroke, width, delay) {
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('stroke', stroke);
+      p.setAttribute('stroke-width', String(width));
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('filter', 'url(#bolt-glow)');
+      p.style.cssText = `stroke-dasharray:70;stroke-dashoffset:70;animation:branchDraw 0.85s ease forwards ${delay}s,boltFlash 0.85s ease forwards ${delay}s`;
+      return p;
+    }
+
+    svg.appendChild(makePath('M 55 2 L 38 38 L 60 44 L 28 98', 'rgba(237,233,254,1)', 2.5, 130, 0));
+    svg.appendChild(makePath('M 55 2 L 38 38 L 60 44 L 28 98', 'rgba(255,255,255,0.9)', 1, 130, 0));
+    svg.appendChild(makeBranch('M 60 44 L 78 62 L 86 57', 'rgba(196,181,253,0.85)', 1.5, 0.08));
+    svg.appendChild(makeBranch('M 38 38 L 20 54 L 12 50', 'rgba(196,181,253,0.75)', 1.2, 0.12));
+    svg.appendChild(makeBranch('M 78 62 L 84 72', 'rgba(167,139,250,0.6)', 1, 0.14));
+
+    warpBtn.appendChild(svg);
+    setTimeout(() => {
+      warpBtn.classList.remove('warp-lightning');
+      svg.remove();
+    }, 950);
   }
 
-  // Update button states
   document.querySelectorAll('.speed-btn').forEach(b => {
     b.classList.remove('active-normal', 'active-fast', 'active-custom', 'active-warp');
   });
@@ -498,21 +548,18 @@ function setSpeed(speed) {
   const activeBtn = document.getElementById('speed' + speed.charAt(0).toUpperCase() + speed.slice(1));
   if (activeBtn && activeMap[speed]) activeBtn.classList.add(activeMap[speed]);
 
-  // Show/hide custom inputs
   const customPanel = document.getElementById('customInputs');
   if (customPanel) { customPanel.classList.toggle('show', speed === 'custom'); }
 
-  // Speed note
   const notes = {
     normal: 'Filter wait: 2500ms · Clear: 800ms · Qty: 600ms · Between: 400ms',
     fast:   'Filter wait: 1600ms · Clear: 600ms · Qty: 400ms · Between: 250ms',
     custom: 'Using your custom timing values below',
-    warp:   'Smart polling · No clear step · Qty: 700ms · Beta'
+    warp:   'Filter: 600ms · Qty: 100ms · Between: 100ms · Overwrite on'
   };
   const note = document.getElementById('speedNote');
   if (note) note.textContent = notes[speed] || '';
 
-  // Persist speed choice
   saveSpeedPrefs();
 }
 
@@ -523,8 +570,6 @@ function togglePaste() {
   toggle.textContent = open ? '▴ Hide manual entry' : '▾ Enter order manually';
 }
 
-// ── GMAIL TAB DETECTION ──
-// ── BACKGROUND COMMS ──
 function getState() {
   return new Promise(res => {
     const timer = setTimeout(() => res({ phase: 'idle' }), 3000);
@@ -538,32 +583,29 @@ function setState(patch) {
   return new Promise(res => chrome.runtime.sendMessage({ type:'SET_STATE', state:patch }, r => res(r)));
 }
 
-// ── PUSH LISTENER — background forwards every PV_PROGRESS/PV_COMPLETE instantly ──
+// ── PUSH LISTENER ──
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type !== 'PUSH_PROGRESS') return;
   const pushed = msg.state;
-  // Ignore pushes from a different run (stale bot still finishing up)
   if (pushed.runId && localState?.runId && pushed.runId !== localState.runId) return;
   localState = pushed;
   if (localState.phase === 'complete') {
     stopPolling();
+    if (msg.state.wasStopped != null) localState.wasStopped = msg.state.wasStopped;
     renderState();
   } else if (localState.phase === 'running') {
     updateProgressUI();
   }
 });
 
-// Polling kept only as reconnect fallback (popup reopened mid-run)
 function startPolling() {
   if (pollInterval) return;
   pollInterval = setInterval(async () => {
-    // Only fetch state if we haven't heard a push recently — avoids redundant GET_STATE calls
     if (localState?.phase === 'complete') { stopPolling(); renderState(); return; }
     if (localState?.phase !== 'running')  { stopPolling(); renderState(); return; }
-    // Still running — do a single sync to catch up if popup was closed/reopened
     localState = await getState();
     updateProgressUI();
-  }, 2000); // slow poll — pushes handle the real-time updates
+  }, 2000);
 }
 function stopPolling() {
   if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
@@ -572,11 +614,10 @@ function stopPolling() {
 // ── TIMER ──
 function startTimer() {
   const start = Date.now();
-  setState({ timerStart: start }); // persist in background
+  setState({ timerStart: start });
   _runTimerInterval(start);
 }
 function resumeTimer() {
-  // Popup just reopened — read timerStart from background state and resume
   const start = localState.timerStart;
   if (!start) return;
   _runTimerInterval(start);
@@ -613,12 +654,8 @@ function resetTimer() {
 // ── WAKE LOCK ──
 async function requestWakeLock() {
   try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-    }
-  } catch(e) {
-    console.log('[PV] Wake lock not available:', e.message);
-  }
+    if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); }
+  } catch(e) { console.log('[PV] Wake lock not available:', e.message); }
 }
 function releaseWakeLock() {
   if (wakeLock) { wakeLock.release(); wakeLock = null; }
@@ -627,12 +664,10 @@ function releaseWakeLock() {
 // ── RENDER ──
 function renderState() {
   const phase = localState?.phase || 'idle';
-  // Drive label bar + order list: only visible on idle
   const isIdle = phase === 'idle';
   document.getElementById('driveLabelBar').style.display = isIdle ? '' : 'none';
   document.getElementById('driveOrderList').style.display = isIdle ? '' : 'none';
   document.getElementById('driveBottom').style.display    = isIdle ? '' : 'none';
-  // Section scroll: flex when not idle
   const ss = document.getElementById('sectionScroll');
   ss.style.display = isIdle ? 'none' : 'flex';
   document.getElementById('secPreview').style.display  = phase === 'loaded'   ? 'flex' : 'none';
@@ -655,13 +690,11 @@ function renderState() {
   updateStatusBar();
 }
 
-// ── PASTE / LOAD ──
 function onPasteAreaInput() {
   document.getElementById('btnLoad').disabled = document.getElementById('pasteArea').value.trim().length === 0;
 }
 async function loadFromPasteArea() {
   const text = document.getElementById('pasteArea').value.trim();
-  // Extract JSON robustly — match outermost braces
   const start = text.indexOf('{');
   if (start === -1) { setStatus('red', 'No JSON found — copy from the phone app'); return; }
   let depth = 0, end = -1;
@@ -682,7 +715,6 @@ async function loadFromPasteArea() {
   }
 }
 
-// ── PREVIEW ──
 function renderPreview() {
   const items = localState?.orderData?.items || [];
   document.getElementById('previewCount').textContent = items.length;
@@ -710,13 +742,12 @@ async function clearOrder() {
   renderState();
 }
 
-// ── RUN BOT ──
 async function runBot() {
   const orderData = localState?.orderData;
   if (!orderData) return;
   const runId = Date.now().toString(36) + Math.random().toString(36).slice(2);
   await setState({ phase:'running', stopRequested:false, results:{entered:[],skipped:[],notFound:[],flagged:[]}, log:[], progress:{current:0, total:orderData.items.length}, runId });
-  localState = await getState(); // sync local immediately — clears old log before any push arrives
+  localState = await getState();
   renderState(); startPolling(); startTimer(); requestWakeLock();
 
   const [tab] = await chrome.tabs.query({ active:true, currentWindow:true });
@@ -747,7 +778,6 @@ async function stopBot() {
   if (btn) { btn.disabled = true; btn.textContent = 'Stopping...'; }
 }
 
-// ── PROGRESS UI ──
 function updateProgressUI() {
   if (!localState) return;
   const { current=0, total=0 } = localState.progress || {};
@@ -767,7 +797,6 @@ function renderLog() {
   if (!wrap) return;
   const logs = localState?.log || [];
   const existing = wrap.children.length;
-  // If log shrank (e.g. trimmed or cleared), wipe DOM and re-render from scratch
   if (logs.length < existing) {
     wrap.innerHTML = '';
     logs.forEach(l => {
@@ -802,7 +831,36 @@ function renderComplete() {
   const resetBtn = document.getElementById('btnReset');
   if (resetBtn) resetBtn.onclick = resetToStart;
   setStatus('green', `Done — ${(r.entered||[]).length} entered, ${(r.notFound||[]).length} not found`);
-  sendCompletionEmail();
+  if (localState?.wasStopped) {
+    showEmailPrompt();
+  } else {
+    sendCompletionEmail();
+  }
+}
+
+function showEmailPrompt() {
+  const el = document.getElementById('emailStatusBadge');
+  if (!el) return;
+  el.style.display = 'flex';
+  el.className = 'email-badge';
+  el.style.background = 'var(--yd)';
+  el.style.borderColor = 'rgba(146,64,14,0.3)';
+  el.style.color = 'var(--yellow)';
+  el.style.flexDirection = 'column';
+  el.style.alignItems = 'flex-start';
+  el.style.gap = '8px';
+  el.innerHTML = `<div style="font-size:11px;font-weight:700;color:var(--yellow)">Bot was stopped — send completion email?</div>
+    <div style="display:flex;gap:6px;width:100%">
+      <button id="emailPromptYes" style="flex:1;padding:6px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Send Email</button>
+      <button id="emailPromptNo"  style="flex:1;padding:6px;background:var(--s2);color:var(--text2);border:1px solid var(--border);border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Skip</button>
+    </div>`;
+  document.getElementById('emailPromptYes').addEventListener('click', () => {
+    el.innerHTML = ''; el.style.display = 'none';
+    sendCompletionEmail();
+  });
+  document.getElementById('emailPromptNo').addEventListener('click', () => {
+    el.innerHTML = ''; el.style.display = 'none';
+  });
 }
 
 async function sendCompletionEmail() {
@@ -811,11 +869,7 @@ async function sendCompletionEmail() {
   const store    = od.store    || 'Unknown Store';
   const operator = od.operator || 'Unknown';
   const date     = new Date().toLocaleDateString('en-CA');
-
-  // Show sending state
   setEmailStatus('sending');
-
-  // Compute runtime from timerStart
   const timerStart = localState?.timerStart;
   let runtimeStr = 'N/A';
   if (timerStart) {
@@ -824,33 +878,21 @@ async function sendCompletionEmail() {
     const sec = String(s % 60).padStart(2, '0');
     runtimeStr = `${m}m ${sec}s`;
   }
-
-  // Build full order CSV
   const entered  = r.entered  || [];
   const skipped  = r.skipped  || [];
   const notFound = r.notFound || [];
   const flagged  = r.flagged  || [];
-
   let csv = 'Item #,Order Qty,On Hand,Reason\n';
   notFound.forEach(i => { csv += `"${i.item}",${i.order||''},${i.qoh||''},"${i.reason||'Not found'}"\n`; });
   skipped.forEach(i  => { csv += `"${i.item}",,,\"${i.reason||'Skipped'}\"\n`; });
   flagged.forEach(i  => { csv += `"${i.item}",${i.qty||''},,\"${i.reason||'Could not enter qty'}\"\n`; });
-
   const payload = {
-    action:    'sendEmail',
-    store,
-    operator,
-    date,
-    runtime:   runtimeStr,
-    entered:   entered.length,
-    skipped:   skipped.length,
-    notFound:  notFound.length,
-    flagged:   flagged.length,
-    total:     entered.length + skipped.length + notFound.length + flagged.length,
+    action: 'sendEmail', store, operator, date, runtime: runtimeStr,
+    entered: entered.length, skipped: skipped.length, notFound: notFound.length, flagged: flagged.length,
+    total: entered.length + skipped.length + notFound.length + flagged.length,
     csvContent: csv,
-    filename:  `petvalu_issues_${store.replace(/ /g,'_')}_${date}.csv`
+    filename: `petvalu_issues_${store.replace(/ /g,'_')}_${date}.csv`
   };
-
   try {
     await chrome.runtime.sendMessage({ type: 'APPS_POST', payload });
     setEmailStatus('sent');
@@ -865,7 +907,7 @@ function setEmailStatus(state) {
   if (!el) return;
   el.style.display = 'flex';
   el.style.animation = 'none';
-  void el.offsetWidth; // reflow to restart animation
+  void el.offsetWidth;
   if (state === 'sending') {
     el.className = 'email-badge email-sending';
     el.innerHTML = '<span class="email-dot-spin"></span> Sending receipt...';
@@ -902,7 +944,6 @@ async function resetToStart() {
   loadDriveOrders();
 }
 
-// ── STATUS BAR ──
 function updateStatusBar() {
   const phase = localState?.phase || 'idle';
   const map = {
@@ -920,18 +961,11 @@ function setStatus(type, text) {
   document.getElementById('statusText').textContent = text;
 }
 
-// ══════════════════════════════════════════════
-// INJECTED: bridge
-// ══════════════════════════════════════════════
-
 function injectBridge() {
   if (window.__pvBridgeReady) return;
   window.__pvBridgeReady = true;
 }
 
-// ══════════════════════════════════════════════
-// INJECTED: bot
-// ══════════════════════════════════════════════
 async function botScript(orderData, timings, runId) {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -956,24 +990,10 @@ async function botScript(orderData, timings, runId) {
     input.dispatchEvent(new KeyboardEvent('keyup', { bubbles:true }));
     return true;
   }
-  async function waitForRows(timeoutMs) {
-    // Warp mode: poll every 100ms until rows appear, up to timeoutMs
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      const rows = getVisibleRows();
-      if (rows.length > 0) return rows;
-      await sleep(100);
-    }
-    return getVisibleRows();
-  }
   async function clearFilter(label, forceReal) {
     const input = getFilterInput(label); if (!input) return;
-    // Overwrite mode only skips the clear when staying on the SAME field for the next item.
-    // Any cross-field clear (switching Item No → Sub, or end-of-item reset) must always be real.
     if (timings.overwriteMode && !forceReal) {
-      // Select-all so next setFilter overwrites instead of appending — no dispatch needed
-      input.focus();
-      input.select();
+      input.focus(); input.select();
     } else {
       input.value = '';
       input.dispatchEvent(new Event('input', { bubbles:true }));
@@ -992,11 +1012,8 @@ async function botScript(orderData, timings, runId) {
     }) || null;
   }
   function getCellText(row, colId) {
-    // Try on the row first
     let c = row.querySelector(`[col-id="${colId}"]`);
     if (c) return c.textContent.trim();
-    // AG Grid splits rows across containers (pinned vs center)
-    // Find the row index and look in the other container
     const rowId = row.getAttribute('row-id');
     if (rowId !== null) {
       c = document.querySelector(`.ag-center-cols-container [row-id="${rowId}"] [col-id="${colId}"]`)
@@ -1006,21 +1023,10 @@ async function botScript(orderData, timings, runId) {
     }
     return '';
   }
-  function getGridApi() {
-    // AG Grid stores its API on the grid div
-    const gridDiv = document.querySelector('.ag-root-wrapper');
-    if (!gridDiv) return null;
-    const key = Object.keys(gridDiv).find(k => k.startsWith('__agComponent') || k.startsWith('__AG'));
-    if (key) return gridDiv[key]?.gridOptions?.api || gridDiv[key]?.api || null;
-    // Try Angular component
-    const ngKey = Object.keys(gridDiv).find(k => k.startsWith('__ngContext') || k.includes('ng'));
-    return null;
-  }
   function getAgApi() {
     try {
       const agGridEl = document.querySelector('ag-grid-angular');
       if (!agGridEl) return null;
-      // Direct AG Grid instance key (confirmed on this portal)
       const inst = agGridEl['__ag_grid_instance'];
       if (inst?.api?.forEachNodeAfterFilter) return inst.api;
       if (inst?.forEachNodeAfterFilter) return inst;
@@ -1036,20 +1042,16 @@ async function botScript(orderData, timings, runId) {
       api.forEachNodeAfterFilter(node => {
         if (found) return;
         const d = node.data;
-        if (d && String(d.item_no || '').trim().toLowerCase() === String(itemId).trim().toLowerCase()) {
-          found = d;
-        }
+        if (d && String(d.item_no || '').trim().toLowerCase() === String(itemId).trim().toLowerCase()) found = d;
       });
       return found;
     } catch(e) { return null; }
   }
   function calcQty(appOrder, appQoh, avgSales, multiple, isCases) {
-    // Cases mode: multiply entered qty by order multiple first, then treat as normal
     let order = appOrder;
     if (isCases && order > 0) order = order * multiple;
     let qty;
     if (order === 0) {
-      // Auto-calculate: ceil(avgSales × 4 - QOH), skip if ≤ 0
       if (avgSales === 0) return { qty: null, reason: 'Skipped — avg sales is 0' };
       qty = Math.ceil(avgSales * 4 - appQoh);
       if (qty <= 0) return { qty: null, reason: `Skipped — already have enough on hand (avg=${avgSales}, qoh=${appQoh})` };
@@ -1089,20 +1091,19 @@ async function botScript(orderData, timings, runId) {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     const id = String(item.item).trim();
-    if (await checkStop()) { sendProgress(`Stopped by user after ${i} items`, i, items.length, 'skip', results); break; }
+    if (await checkStop()) { sendProgress(`Stopped by user after ${i} items`, i, items.length, 'skip', results); results._stopped = true; break; }
     sendProgress(`[${i+1}/${items.length}] Searching ${id}...`, i, items.length, 'info', results);
-    const warp = timings.afterClear === 0; // warp mode flag
     await setFilter('Item No Filter Input', id);
-    let rows = warp ? await waitForRows(timings.afterFilter) : (await sleep(timings.afterFilter), getVisibleRows());
-    if (warp && rows.length > 0) await sleep(250); // let ag-Grid finish rendering cells
+    await sleep(timings.afterFilter);
+    let rows = getVisibleRows();
     let targetRow = findExactRow(rows, id);
     let usedSub = false;
     if (!targetRow) {
       sendProgress(`${id} — not in Item No, trying Substituted Item...`, i, items.length, 'info', results);
-      if (!warp) await clearFilter('Item No Filter Input', true);
+      await clearFilter('Item No Filter Input', true);
       await setFilter('Substituted Item Filter Input', id);
-      rows = warp ? await waitForRows(timings.afterSubFilter || timings.afterFilter) : (await sleep(timings.afterSubFilter ?? timings.afterFilter), getVisibleRows());
-      if (warp && rows.length > 0) await sleep(250);
+      await sleep(timings.afterSubFilter ?? timings.afterFilter);
+      rows = getVisibleRows();
       targetRow = rows.length > 0 ? rows[0] : null;
       usedSub = true;
     }
@@ -1112,7 +1113,6 @@ async function botScript(orderData, timings, runId) {
       await clearFilter(usedSub ? 'Substituted Item Filter Input' : 'Item No Filter Input', true);
       await sleep(timings.betweenItems); continue;
     }
-    // Check Life Cycle Status — skip ROS, INOT, OOS
     const lifecycle = getCellText(targetRow, 'life_cycle_status');
     const lifecycleReasons = {
       'OOS':  'OOS — Out of Stock',
@@ -1125,13 +1125,9 @@ async function botScript(orderData, timings, runId) {
       await clearFilter(usedSub ? 'Substituted Item Filter Input' : 'Item No Filter Input', true);
       await sleep(timings.betweenItems); continue;
     }
-    // Try AG Grid internal data first (bypasses column virtualization), fall back to DOM
     const gridData = getRowDataFromGrid(id);
-    console.log('[PV Bot] gridData for', id, gridData);
     let avgSales = parseFloat(gridData?.average_sales_last_4_weeks ?? getCellText(targetRow, 'average_sales_last_4_weeks')) || 0;
     let multiple = parseInt(gridData?.order_multiple ?? getCellText(targetRow, 'order_multiple')) || 1;
-    console.log('[PV Bot]', id, '— avgSales:', avgSales, 'multiple:', multiple);
-    // Negative order = cases encoding
     const isCases  = item.order < 0 || item.cases === true;
     const absOrder = Math.abs(item.order);
     const calcResult = calcQty(absOrder, item.qoh, avgSales, multiple, isCases);
@@ -1143,7 +1139,6 @@ async function botScript(orderData, timings, runId) {
     }
     const qty = calcResult.qty;
     const ok = await enterQty(targetRow, qty);
-    if (warp) await sleep(200); // let cell fully commit before moving on
     if (ok) {
       results.entered.push({ item:id, qty, usedSub });
       sendProgress(`${id} — entered ${qty}${usedSub?' [via substitute]':''}`, i+1, items.length, 'ok', results);
@@ -1155,7 +1150,8 @@ async function botScript(orderData, timings, runId) {
     await sleep(timings.betweenItems);
   }
 
-  chrome.runtime.sendMessage({ type:'PV_COMPLETE', results, runId });
+  const wasStopped = results._stopped || false;
+  chrome.runtime.sendMessage({ type:'PV_COMPLETE', results, runId, wasStopped });
 }
 
 // ── DEV MODE ──
@@ -1164,15 +1160,11 @@ function devTriggerClick() {
   _devClicks++;
   clearTimeout(_devClickTimer);
   _devClickTimer = setTimeout(() => { _devClicks = 0; }, 1200);
-  if (_devClicks >= 3) {
-    _devClicks = 0;
-    openDevMode();
-  }
+  if (_devClicks >= 3) { _devClicks = 0; openDevMode(); }
 }
 function openDevMode() {
   const ov = document.getElementById('devOverlay');
   if (!ov) return;
-  // Move to body to escape any clipping containers
   document.body.appendChild(ov);
   ov.style.display = 'flex';
 }
@@ -1185,35 +1177,19 @@ async function devTestEmail() {
   const statusEl = document.getElementById('devEmailStatus');
   statusEl.style.color = 'var(--muted)';
   statusEl.textContent = 'Injecting state and calling sendCompletionEmail()...';
-
-  // Inject realistic fake state — same shape as a real completed run
-  const fakeTimerStart = Date.now() - (4 * 60 * 1000 + 17 * 1000); // 4m 17s ago
+  const fakeTimerStart = Date.now() - (4 * 60 * 1000 + 17 * 1000);
   await setState({
     phase: 'complete',
     timerStart: fakeTimerStart,
     orderData: { store: 'Lakeshore Rd', operator: 'Nipun' },
     results: {
-      entered:  [
-        { item: '10045231', qty: 6,  usedSub: false },
-        { item: '10078432', qty: 12, usedSub: false },
-        { item: '10091234', qty: 3,  usedSub: true  },
-        { item: '10056789', qty: 8,  usedSub: false },
-        { item: '10034567', qty: 2,  usedSub: false },
-      ],
-      skipped:  [
-        { item: '10011111', reason: 'OOS' },
-        { item: '10022222', reason: 'ROS' },
-      ],
-      notFound: [
-        { item: '10099999', order: 4, qoh: 1, reason: 'Not found in portal' },
-      ],
-      flagged:  [
-        { item: '10088888', qty: 5, reason: 'Could not click/edit Qty cell' },
-      ]
+      entered:  [{ item:'10045231',qty:6,usedSub:false},{item:'10078432',qty:12,usedSub:false},{item:'10091234',qty:3,usedSub:true},{item:'10056789',qty:8,usedSub:false},{item:'10034567',qty:2,usedSub:false}],
+      skipped:  [{ item:'10011111',reason:'OOS'},{item:'10022222',reason:'ROS'}],
+      notFound: [{ item:'10099999',order:4,qoh:1,reason:'Not found in portal'}],
+      flagged:  [{ item:'10088888',qty:5,reason:'Could not click/edit Qty cell'}]
     }
   });
   localState = await getState();
-
   try {
     await sendCompletionEmail();
     statusEl.style.color = 'var(--accent)';
@@ -1228,12 +1204,10 @@ async function devTestDrive() {
   const statusEl = document.getElementById('devDriveStatus');
   statusEl.style.color = 'var(--muted)';
   statusEl.textContent = 'Uploading test files via real upload path...';
-
   const date = new Date().toLocaleDateString('en-CA');
   const base = `DEV_TEST_Lakeshore_Rd_${date}`;
   const jsonContent = JSON.stringify({ store:'Lakeshore Rd', date, _devTest: true, items:[{item:'10045231',order:6,qoh:10}] }, null, 2);
   const csvContent  = `Store,Date,Item #,Order Qty,On Hand,Status,Notes\n"Lakeshore Rd","${date}","10045231",6,10,Entered,\n`;
-
   try {
     const results = await Promise.all([
       chrome.runtime.sendMessage({ type:'APPS_POST', payload:{ filename: base+'.json', content: jsonContent }}),
