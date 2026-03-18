@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Project: Herald",
-  "version": "2.2.7",
+  "version": "2.2.9",
   "description": "Automated order entry for Pet Valu portal",
   "permissions": [
     "activeTab",
