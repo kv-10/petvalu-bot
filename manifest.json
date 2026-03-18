@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Project: Herald",
+  "version": "2.2.10",
+  "description": "Automated order entry for Pet Valu portal",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://webportal.petvalu.com/*",
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
+  "action": {
+    "default_title": "Project: Herald",
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "sidebar_action": {
+    "default_panel": "popup.html",
+    "default_title": "Project: Herald",
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "petvalu-bot@family",
+      "strict_min_version": "109.0",
+      "update_url": "https://petvalu-bot.vercel.app/update.xml"
+    }
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  }
+}

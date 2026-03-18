@@ -1,0 +1,19 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Content-Type", "value": "application/octet-stream" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/update.xml",
+      "headers": [
+        { "key": "Content-Type", "value": "text/xml" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}
