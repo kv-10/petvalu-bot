@@ -10,7 +10,6 @@ on:
       - 'manifest.json'
       - 'gmail.js'
       - 'vercel.json'
-      - 'update.xml'
 
 jobs:
   build:
@@ -24,18 +23,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract base files from files.zip
-        run: unzip -o files.zip -d extracted/
-
       - name: Build XPI
         run: |
-          # Start with everything from the old zip (icons, manifest, gmail, vercel)
-          cp extracted/*.png . 2>/dev/null || true
-          cp extracted/manifest.json . 2>/dev/null || true
-          cp extracted/gmail.js . 2>/dev/null || true
-          cp extracted/vercel.json . 2>/dev/null || true
-          # popup.html, popup.js, background.js already in repo (overrides extracted)
-          ls -la *.png manifest.json gmail.js vercel.json popup.html popup.js background.js
+          ls -la
           zip -j petvalu-bot.xpi \
             manifest.json \
             popup.html \
