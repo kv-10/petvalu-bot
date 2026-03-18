@@ -23,17 +23,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: List files.zip contents
-        run: unzip -l files.zip
-
-      - name: Extract all from files.zip
+      - name: Extract icons from files.zip
         run: unzip -o files.zip -d fromzip/
-
-      - name: List extracted files
-        run: ls -la fromzip/
 
       - name: Build XPI
         run: |
+          rm -f petvalu-bot.xpi
           zip -j petvalu-bot.xpi \
             manifest.json \
             popup.html \
