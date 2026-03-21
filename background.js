@@ -1,5 +1,5 @@
 // Background service worker - persists bot state across popup open/close
-// v2.2.10 - build trigger
+// v2.2.10
 let botState = {
   phase: 'idle',
   orderData: null,

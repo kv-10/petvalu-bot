@@ -24,7 +24,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build XPI
-        run: python3 .github/build_xpi.py
+        run: |
+          rm -f petvalu-bot.xpi
+          zip -j -0 petvalu-bot.xpi icon16.png icon32.png icon48.png icon128.png icon.png
+          zip -j petvalu-bot.xpi manifest.json popup.html popup.js background.js gmail.js vercel.json
 
       - name: Commit and push XPI
         run: |
