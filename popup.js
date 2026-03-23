@@ -441,54 +441,29 @@ function pdfSafe(s) {
 function buildReportPDF({ store, operator, date, runtimeStr, entered, skipped, notFound, flagged }) {
   const esc = s => pdfSafe(String(s)).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
   const hex = (r,g,b) => `${(r/255).toFixed(3)} ${(g/255).toFixed(3)} ${(b/255).toFixed(3)}`;
-
   const PW=595, PH=842, ML=44, MR=44; const contentW=PW-ML-MR;
-
   const C_INK=hex(15,23,42), C_TEXT=hex(30,41,59), C_MUTED=hex(100,116,139), C_BORDER=hex(226,232,240), ACCENT=hex(0,180,130);
   const C_GREEN=hex(22,163,74), C_GREEN_BG=hex(220,252,231), C_GREEN_BAR=hex(22,163,74);
   const C_AMBER=hex(161,80,0), C_AMBER_BG=hex(254,243,199), C_AMBER_BAR=hex(200,120,0);
   const C_RED=hex(185,28,28), C_RED_BG=hex(254,226,226), C_RED_BAR=hex(220,38,38);
   const C_BLUE=hex(29,78,216), C_BLUE_BG=hex(219,234,254), C_BLUE_BAR=hex(37,99,235);
   const C_WHITE=hex(255,255,255);
-
   const FOOTER_H=26, FIRST_HDR_H=108, CONT_HDR_H=28;
   const PAGE_BOTTOM=PH-FOOTER_H-6;
   const ROW_H=24, HDR_ROW=18, SEC_H=24;
-
-  // 5-column layout: Item # | Description | Order | On Hand | Reason
-  const COL1=ML+6;    // Item #      (~80px wide)
-  const COL2=ML+88;   // Description (~170px wide)
-  const COL3=ML+262;  // Order       (~52px wide)
-  const COL4=ML+318;  // On Hand     (~52px wide)
-  const COL5=ML+374;  // Reason      (~remaining)
-
+  const COL1=ML+6; const COL2=ML+88; const COL3=ML+262; const COL4=ML+318; const COL5=ML+374;
   const pages = []; let cmds = [];
   const c = s => cmds.push(s);
   const py = yy => PH-yy;
   const newPage = () => { pages.push(cmds); cmds = []; };
-
-  const dRect = (x,yt,w,h,fill,stroke) => {
-    const yb=py(yt+h);
-    if(fill)   c(`${fill} rg ${x.toFixed(2)} ${yb.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
-    if(stroke) c(`${stroke} RG 0.5 w ${x.toFixed(2)} ${yb.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`);
-  };
+  const dRect = (x,yt,w,h,fill,stroke) => { const yb=py(yt+h); if(fill) c(`${fill} rg ${x.toFixed(2)} ${yb.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`); if(stroke) c(`${stroke} RG 0.5 w ${x.toFixed(2)} ${yb.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`); };
   const dLine = (x1,yt1,x2,yt2,col,lw=0.5) => c(`${col} RG ${lw} w ${x1.toFixed(2)} ${py(yt1).toFixed(2)} m ${x2.toFixed(2)} ${py(yt2).toFixed(2)} l S`);
   const dText = (txt,x,yt,sz,col,bold) => { const bl=py(yt+sz*0.85); c(`BT /${bold?'Helvetica-Bold':'Helvetica'} ${sz} Tf ${col} rg ${x.toFixed(2)} ${bl.toFixed(2)} Td (${esc(String(txt))}) Tj ET`); };
   const dTextR = (txt,x,rt,rh,sz,col,bold) => { const bl=py(rt+rh/2+sz*0.35); c(`BT /${bold?'Helvetica-Bold':'Helvetica'} ${sz} Tf ${col} rg ${x.toFixed(2)} ${bl.toFixed(2)} Td (${esc(String(txt))}) Tj ET`); };
-
   const total = entered.length+skipped.length+notFound.length+flagged.length;
-
-  const drawFooter = (pgNum) => {
-    dRect(0,PH-FOOTER_H,PW,FOOTER_H,hex(248,250,252));
-    dLine(0,PH-FOOTER_H,PW,PH-FOOTER_H,C_BORDER,0.5);
-    dText('Project: Herald',ML,PH-FOOTER_H+5,7.5,C_MUTED,false);
-    dText(`${pdfSafe(store)}  /  ${date}`,PW/2-50,PH-FOOTER_H+5,7.5,C_MUTED,false);
-    dText(`Page ${pgNum}`,PW-MR-36,PH-FOOTER_H+5,7.5,C_MUTED,false);
-  };
-
+  const drawFooter = (pgNum) => { dRect(0,PH-FOOTER_H,PW,FOOTER_H,hex(248,250,252)); dLine(0,PH-FOOTER_H,PW,PH-FOOTER_H,C_BORDER,0.5); dText('Project: Herald',ML,PH-FOOTER_H+5,7.5,C_MUTED,false); dText(`${pdfSafe(store)}  /  ${date}`,PW/2-50,PH-FOOTER_H+5,7.5,C_MUTED,false); dText(`Page ${pgNum}`,PW-MR-36,PH-FOOTER_H+5,7.5,C_MUTED,false); };
   const drawFirstHeader = () => {
-    dRect(0,0,PW,FIRST_HDR_H,C_INK);
-    dRect(0,0,4,FIRST_HDR_H,ACCENT);
+    dRect(0,0,PW,FIRST_HDR_H,C_INK); dRect(0,0,4,FIRST_HDR_H,ACCENT);
     const TOP_H=58;
     dText('Project: Herald',ML+12,9,19,hex(255,255,255),true);
     dText(`${total} items`,ML+12,34,11,hex(200,220,210),true);
@@ -497,34 +472,13 @@ function buildReportPDF({ store, operator, date, runtimeStr, entered, skipped, n
     const RX=ML+contentW-200;
     dText(pdfSafe(store),RX,8,15,hex(255,255,255),true);
     dText(date,RX,29,10,hex(140,170,160),true);
-    const card_y=TOP_H+6, card_h=FIRST_HDR_H-TOP_H-10, card_gap=6;
-    const card_w=(contentW-3*card_gap)/4;
+    const card_y=TOP_H+6, card_h=FIRST_HDR_H-TOP_H-10, card_gap=6, card_w=(contentW-3*card_gap)/4;
     const stats=[['Entered',entered.length,C_GREEN_BAR,hex(230,255,240),C_GREEN],['Skipped',skipped.length,C_AMBER_BAR,hex(255,248,220),C_AMBER],['Not Found',notFound.length,C_RED_BAR,hex(255,235,235),C_RED],['Flagged',flagged.length,C_BLUE_BAR,hex(230,238,255),C_BLUE]];
-    stats.forEach(([label,val,bar,bg,fg],i) => {
-      const cx=ML+i*(card_w+card_gap);
-      dRect(cx,card_y,card_w,card_h,bg);
-      dRect(cx,card_y,4,card_h,bar);
-      dText(String(val),cx+12,card_y+3,18,fg,true);
-      dText(label,cx+12,card_y+card_h-13,8,fg,false);
-    });
+    stats.forEach(([label,val,bar,bg,fg],i) => { const cx=ML+i*(card_w+card_gap); dRect(cx,card_y,card_w,card_h,bg); dRect(cx,card_y,4,card_h,bar); dText(String(val),cx+12,card_y+3,18,fg,true); dText(label,cx+12,card_y+card_h-13,8,fg,false); });
   };
-
-  const drawContHeader = () => {
-    dRect(0,0,PW,CONT_HDR_H,C_INK); dRect(0,0,4,CONT_HDR_H,ACCENT);
-    dTextR('Project: Herald',ML+10,0,CONT_HDR_H,9,hex(200,215,230),true);
-    dTextR(`${pdfSafe(store)}  /  ${date}`,PW/2-40,0,CONT_HDR_H,8.5,hex(100,130,150),false);
-    dTextR('continued',PW-MR-55,0,CONT_HDR_H,8,hex(80,110,130),false);
-  };
-
+  const drawContHeader = () => { dRect(0,0,PW,CONT_HDR_H,C_INK); dRect(0,0,4,CONT_HDR_H,ACCENT); dTextR('Project: Herald',ML+10,0,CONT_HDR_H,9,hex(200,215,230),true); dTextR(`${pdfSafe(store)}  /  ${date}`,PW/2-40,0,CONT_HDR_H,8.5,hex(100,130,150),false); dTextR('continued',PW-MR-55,0,CONT_HDR_H,8,hex(80,110,130),false); };
   let cy=[FIRST_HDR_H+16], pgNum=[1];
-
-  const checkBreak = (needed) => {
-    if (cy[0]+needed > PAGE_BOTTOM) {
-      drawFooter(pgNum[0]); newPage(); pgNum[0]++;
-      drawContHeader(); drawFooter(pgNum[0]); cy[0]=CONT_HDR_H+14;
-    }
-  };
-
+  const checkBreak = (needed) => { if (cy[0]+needed > PAGE_BOTTOM) { drawFooter(pgNum[0]); newPage(); pgNum[0]++; drawContHeader(); drawFooter(pgNum[0]); cy[0]=CONT_HDR_H+14; } };
   const drawSection = (title, items, rowFn, color, bgColor) => {
     if (!items.length) return;
     checkBreak(SEC_H+HDR_ROW+ROW_H); cy[0]+=12;
@@ -533,85 +487,35 @@ function buildReportPDF({ store, operator, date, runtimeStr, entered, skipped, n
     dTextR(`${items.length} item${items.length!==1?'s':''}`,ML+contentW-68,cy[0],SEC_H,9.5,color,false);
     cy[0]+=SEC_H;
     dRect(ML,cy[0],contentW,HDR_ROW,hex(226,232,240));
-    dTextR('Item #',      COL1,cy[0],HDR_ROW,8,C_MUTED,true);
-    dTextR('Description', COL2,cy[0],HDR_ROW,8,C_MUTED,true);
-    dTextR('Order',       COL3,cy[0],HDR_ROW,8,C_MUTED,true);
-    dTextR('On Hand',     COL4,cy[0],HDR_ROW,8,C_MUTED,true);
-    dTextR('Reason',      COL5,cy[0],HDR_ROW,8,C_MUTED,true);
+    dTextR('Item #',COL1,cy[0],HDR_ROW,8,C_MUTED,true); dTextR('Description',COL2,cy[0],HDR_ROW,8,C_MUTED,true); dTextR('Order',COL3,cy[0],HDR_ROW,8,C_MUTED,true); dTextR('On Hand',COL4,cy[0],HDR_ROW,8,C_MUTED,true); dTextR('Reason',COL5,cy[0],HDR_ROW,8,C_MUTED,true);
     cy[0]+=HDR_ROW;
-    items.forEach((item,idx) => {
-      checkBreak(ROW_H);
-      dRect(ML,cy[0],contentW,ROW_H,idx%2===0?C_WHITE:hex(248,250,252));
-      rowFn(item,cy[0],ROW_H); cy[0]+=ROW_H;
-    });
+    items.forEach((item,idx) => { checkBreak(ROW_H); dRect(ML,cy[0],contentW,ROW_H,idx%2===0?C_WHITE:hex(248,250,252)); rowFn(item,cy[0],ROW_H); cy[0]+=ROW_H; });
     dLine(ML,cy[0],ML+contentW,cy[0],C_BORDER); cy[0]+=6;
   };
-
   const desc = (item) => (item.desc||'').slice(0,28);
-
   drawFirstHeader(); drawFooter(1);
-
-  drawSection('Skipped',skipped,(item,ry,rh)=>{
-    dTextR(item.item||'',COL1,ry,rh,9,C_TEXT,true);
-    dTextR(desc(item),COL2,ry,rh,8.5,C_MUTED,false);
-    dTextR('',COL3,ry,rh,9,C_TEXT,false);
-    dTextR('',COL4,ry,rh,9,C_TEXT,false);
-    dTextR((item.reason||'Skipped').slice(0,38),COL5,ry,rh,8.5,C_AMBER,false);
-  },C_AMBER_BAR,C_AMBER_BG);
-
-  drawSection('Not Found',notFound,(item,ry,rh)=>{
-    dTextR(item.item||'',COL1,ry,rh,9,C_TEXT,true);
-    dTextR(desc(item),COL2,ry,rh,8.5,C_MUTED,false);
-    dTextR(item.order!=null?String(item.order):'',COL3,ry,rh,9,C_TEXT,false);
-    dTextR(item.qoh!=null?String(item.qoh):'',COL4,ry,rh,9,C_TEXT,false);
-    dTextR((item.reason||'Not found').slice(0,38),COL5,ry,rh,8.5,C_RED,false);
-  },C_RED_BAR,C_RED_BG);
-
-  drawSection('Flagged - Enter Manually',flagged,(item,ry,rh)=>{
-    dTextR(item.item||'',COL1,ry,rh,9,C_TEXT,true);
-    dTextR(desc(item),COL2,ry,rh,8.5,C_MUTED,false);
-    dTextR(item.qty!=null?String(item.qty):'',COL3,ry,rh,9,C_TEXT,false);
-    dTextR('',COL4,ry,rh,9,C_TEXT,false);
-    dTextR((item.reason||'').slice(0,38),COL5,ry,rh,8.5,C_BLUE,false);
-  },C_BLUE_BAR,C_BLUE_BG);
-
-  if (!notFound.length&&!flagged.length&&!skipped.length) {
-    checkBreak(50); cy[0]+=20;
-    dRect(ML,cy[0],contentW,38,C_GREEN_BG);
-    dTextR(`All ${entered.length} items entered successfully - no issues.`,ML+14,cy[0],38,12,C_GREEN,true);
-    cy[0]+=38;
-  }
+  drawSection('Skipped',skipped,(item,ry,rh)=>{ dTextR(item.item||'',COL1,ry,rh,9,C_TEXT,true); dTextR(desc(item),COL2,ry,rh,8.5,C_MUTED,false); dTextR('',COL3,ry,rh,9,C_TEXT,false); dTextR('',COL4,ry,rh,9,C_TEXT,false); dTextR((item.reason||'Skipped').slice(0,38),COL5,ry,rh,8.5,C_AMBER,false); },C_AMBER_BAR,C_AMBER_BG);
+  drawSection('Not Found',notFound,(item,ry,rh)=>{ dTextR(item.item||'',COL1,ry,rh,9,C_TEXT,true); dTextR(desc(item),COL2,ry,rh,8.5,C_MUTED,false); dTextR(item.order!=null?String(item.order):'',COL3,ry,rh,9,C_TEXT,false); dTextR(item.qoh!=null?String(item.qoh):'',COL4,ry,rh,9,C_TEXT,false); dTextR((item.reason||'Not found').slice(0,38),COL5,ry,rh,8.5,C_RED,false); },C_RED_BAR,C_RED_BG);
+  drawSection('Flagged - Enter Manually',flagged,(item,ry,rh)=>{ dTextR(item.item||'',COL1,ry,rh,9,C_TEXT,true); dTextR(desc(item),COL2,ry,rh,8.5,C_MUTED,false); dTextR(item.qty!=null?String(item.qty):'',COL3,ry,rh,9,C_TEXT,false); dTextR('',COL4,ry,rh,9,C_TEXT,false); dTextR((item.reason||'').slice(0,38),COL5,ry,rh,8.5,C_BLUE,false); },C_BLUE_BAR,C_BLUE_BG);
+  if (!notFound.length&&!flagged.length&&!skipped.length) { checkBreak(50); cy[0]+=20; dRect(ML,cy[0],contentW,38,C_GREEN_BG); dTextR(`All ${entered.length} items entered successfully - no issues.`,ML+14,cy[0],38,12,C_GREEN,true); cy[0]+=38; }
   newPage();
-
-  // ── BUILD MULTI-PAGE PDF ──
   const totalPages = pages.length;
   let pdfStr = '%PDF-1.4\n';
   const objOff = {};
   const addO = (n,body) => { objOff[n]=pdfStr.length; pdfStr+=`${n} 0 obj\n${body}\nendobj\n`; };
-
   addO(4,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
   addO(5,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
-
   const base=6;
-  for(let pi=0;pi<totalPages;pi++) {
-    const stream=pages[pi].join('\n');
-    addO(base+pi,`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
-  }
-  const pagesId=base+totalPages;
-  const pageIds=[];
-  for(let pi=0;pi<totalPages;pi++) {
-    const oid=pagesId+1+pi; pageIds.push(oid);
-    addO(oid,`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${PW} ${PH}] /Contents ${base+pi} 0 R /Resources << /Font << /Helvetica 4 0 R /Helvetica-Bold 5 0 R >> >> >>`);
-  }
+  for(let pi=0;pi<totalPages;pi++) { const stream=pages[pi].join('\n'); addO(base+pi,`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`); }
+  const pagesId=base+totalPages; const pageIds=[];
+  for(let pi=0;pi<totalPages;pi++) { const oid=pagesId+1+pi; pageIds.push(oid); addO(oid,`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${PW} ${PH}] /Contents ${base+pi} 0 R /Resources << /Font << /Helvetica 4 0 R /Helvetica-Bold 5 0 R >> >> >>`); }
   const catalogId=pagesId+1+totalPages;
   addO(pagesId,`<< /Type /Pages /Kids [${pageIds.map(o=>`${o} 0 R`).join(' ')}] /Count ${totalPages} >>`);
   addO(catalogId,`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
-
   const xrefOff=pdfStr.length;
   pdfStr+=`xref\n0 ${catalogId+1}\n0000000000 65535 f \n`;
   for(let i=1;i<=catalogId;i++) pdfStr+=String(objOff[i]||0).padStart(10,'0')+' 00000 n \n';
   pdfStr+=`trailer\n<< /Size ${catalogId+1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOff}\n%%EOF`;
-
   const bytes=unescape(encodeURIComponent(pdfStr));
   let b64=''; const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   for(let i=0;i<bytes.length;i+=3){const b=[bytes.charCodeAt(i),bytes.charCodeAt(i+1)||0,bytes.charCodeAt(i+2)||0];const chunk=(b[0]<<16)|(b[1]<<8)|b[2];b64+=chars[(chunk>>18)&63]+chars[(chunk>>12)&63]+(i+1<bytes.length?chars[(chunk>>6)&63]:'=')+(i+2<bytes.length?chars[chunk&63]:'=');}
@@ -674,21 +578,21 @@ async function botScript(orderData, timings, runId) {
   async function clearFilter(label,forceReal){const input=getFilterInput(label);if(!input)return;if(timings.overwriteMode&&!forceReal){input.focus();input.select();}else{input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));if(timings.afterClear>0)await sleep(timings.afterClear);}}
   function getVisibleRows(){return Array.from(document.querySelectorAll('.ag-row[role="row"]')).filter(r=>!r.classList.contains('ag-row-loading')&&!r.classList.contains('ag-row-stub'));}
   function findExactRow(rows,id){return rows.find(r=>{const c=r.querySelector('[col-id="item_no"]');return c&&c.textContent.trim().toLowerCase()===String(id).trim().toLowerCase();})||null;}
+  // ── Substituted item path: verify row actually contains our ID in the sub cell ──
+  function findSubRow(rows,id){
+    const idL=String(id).trim().toLowerCase();
+    return rows.find(r=>{
+      const subCell=r.querySelector('[col-id="substituted_item"]');
+      if(subCell&&subCell.textContent.trim().toLowerCase()===idL) return true;
+      const itemCell=r.querySelector('[col-id="item_no"]');
+      if(itemCell&&itemCell.textContent.trim().toLowerCase()===idL) return true;
+      return false;
+    })||null;
+  }
   function getCellText(row,colId){let c=row.querySelector(`[col-id="${colId}"]`);if(c)return c.textContent.trim();const rowId=row.getAttribute('row-id');if(rowId!==null){c=document.querySelector(`.ag-center-cols-container [row-id="${rowId}"] [col-id="${colId}"]`)||document.querySelector(`.ag-pinned-left-cols-container [row-id="${rowId}"] [col-id="${colId}"]`)||document.querySelector(`[row-id="${rowId}"] [col-id="${colId}"]`);if(c)return c.textContent.trim();}return '';}
   function getAgApi(){try{const agGridEl=document.querySelector('ag-grid-angular');if(!agGridEl)return null;const inst=agGridEl['__ag_grid_instance'];if(inst?.api?.forEachNodeAfterFilter)return inst.api;if(inst?.forEachNodeAfterFilter)return inst;if(inst?.gridOptions?.api?.forEachNodeAfterFilter)return inst.gridOptions.api;}catch(e){console.log('[PV Bot] getAgApi error:',e);}return null;}
   function getRowDataFromGrid(itemId){try{const api=getAgApi();if(!api)return null;let found=null;api.forEachNodeAfterFilter(node=>{if(found)return;const d=node.data;if(d&&String(d.item_no||'').trim().toLowerCase()===String(itemId).trim().toLowerCase())found=d;});return found;}catch(e){return null;}}
-
-  // ── Read item description: col-id confirmed as "item_name" in the Pet Valu portal ──
-  function getItemDescription(row, gridData) {
-    // item_name is the confirmed col-id; fallbacks kept for safety
-    const candidates = ['item_name','item_description','description','product_description','desc','item_desc'];
-    for (const col of candidates) {
-      const v = (gridData && gridData[col]) || getCellText(row, col);
-      if (v && v.trim()) return v.trim();
-    }
-    return '';
-  }
-
+  function getItemDescription(row,gridData){const candidates=['item_name','item_description','description','product_description','desc','item_desc'];for(const col of candidates){const v=(gridData&&gridData[col])||getCellText(row,col);if(v&&v.trim())return v.trim();}return '';}
   function calcQty(appOrder,appQoh,avgSales,multiple,isCases){let order=appOrder;if(isCases&&order>0)order=order*multiple;let qty;if(order===0){if(avgSales===0)return{qty:null,reason:'Skipped \u2014 avg sales is 0'};qty=Math.ceil(avgSales*4-appQoh);if(qty<=0)return{qty:null,reason:`Skipped \u2014 already have enough on hand (avg=${avgSales}, qoh=${appQoh})`};}else{qty=order;if(qty<=0)return{qty:null,reason:'Skipped \u2014 order qty \u2264 0'};}if(multiple>1){const rem=qty%multiple;if(rem!==0)qty+=(multiple-rem);}return{qty};}
   async function enterQty(row,qty){const cell=row.querySelector('[col-id="unit_qty_chg"]');if(!cell)return false;cell.click();await sleep(250);cell.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true,view:window}));await sleep(400);let input=cell.querySelector('input[aria-label="Input Editor"]')||cell.querySelector('input')||document.querySelector('.ag-cell-inline-editing input');if(!input){cell.dispatchEvent(new KeyboardEvent('keydown',{key:'F2',keyCode:113,bubbles:true}));await sleep(350);input=cell.querySelector('input')||document.querySelector('.ag-cell-inline-editing input');}if(!input)return false;input.focus();input.select();input.value=String(qty);input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));input.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',keyCode:9,bubbles:true}));await sleep(timings.afterQty);return true;}
 
@@ -699,7 +603,15 @@ async function botScript(orderData, timings, runId) {
     sendProgress(`[${i+1}/${items.length}] Searching ${id}...`,i,items.length,'info',results);
     await setFilter('Item No Filter Input',id); await sleep(timings.afterFilter);
     let rows=getVisibleRows(),targetRow=findExactRow(rows,id),usedSub=false;
-    if(!targetRow){sendProgress(`${id} \u2014 not in Item No, trying Substituted Item...`,i,items.length,'info',results);await clearFilter('Item No Filter Input',true);await setFilter('Substituted Item Filter Input',id);await sleep(timings.afterSubFilter??timings.afterFilter);rows=getVisibleRows();targetRow=rows.length>0?rows[0]:null;usedSub=true;}
+    if(!targetRow){
+      sendProgress(`${id} \u2014 not in Item No, trying Substituted Item...`,i,items.length,'info',results);
+      await clearFilter('Item No Filter Input',true);
+      await setFilter('Substituted Item Filter Input',id);
+      await sleep(timings.afterSubFilter??timings.afterFilter);
+      rows=getVisibleRows();
+      targetRow=findSubRow(rows,id); // verified match — not blind rows[0]
+      usedSub=true;
+    }
     if(!targetRow){results.notFound.push({item:id,order:item.order,qoh:item.qoh,desc:'',reason:'Not found (checked Item No + Substituted Item)'});sendProgress(`${id} \u2014 NOT FOUND`,i+1,items.length,'notfound',results);await clearFilter(usedSub?'Substituted Item Filter Input':'Item No Filter Input',true);await sleep(timings.betweenItems);continue;}
     const lifecycle=getCellText(targetRow,'life_cycle_status');
     const lifecycleReasons={'OOS':'OOS \u2014 Out of Stock','ROS':'ROS \u2014 Ranged Out of Store','INOT':'INOT \u2014 Inactive / Not On Tag'};
